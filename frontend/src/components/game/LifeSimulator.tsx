@@ -772,7 +772,7 @@ export default function LifeSimulator() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white">
+    <div className="h-full flex flex-col overflow-hidden bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white">
       {/* 顶部状态栏 */}
       <div className="px-4 pt-3 pb-2 border-b border-white/5">
         <div className="flex items-center justify-between mb-2">
@@ -818,7 +818,7 @@ export default function LifeSimulator() {
       </div>
 
       {/* 历史记录区 */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-2">
         {state.history.map((h, i) => (
           <YearCard
             key={i}
