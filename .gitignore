@@ -1,0 +1,31 @@
+# Claude config (local)
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# C# build artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.deps.json
+*.runtimeconfig.json
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
