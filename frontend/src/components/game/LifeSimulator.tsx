@@ -471,8 +471,8 @@ function EndingScreen({ onRestart }: { onRestart: () => void }) {
   const ending = useMemo(() => determineEnding(state.stats, state.tags, state.talents), [state.stats, state.tags]);
 
   return (
-    <div className="h-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white px-4">
-      <div className="text-center space-y-4 max-w-sm w-full">
+    <div className="h-full overflow-y-auto flex flex-col items-center bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white px-4 py-8">
+      <div className="text-center space-y-4 max-w-sm w-full my-auto">
         {/* CG 画面 */}
         <CGScene endingId={ending.id} />
 
@@ -503,7 +503,7 @@ function EndingScreen({ onRestart }: { onRestart: () => void }) {
           onClick={onRestart}
           className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-sm transition-all active:scale-95"
         >
-          再来一次
+          我要重开
         </button>
       </div>
     </div>
