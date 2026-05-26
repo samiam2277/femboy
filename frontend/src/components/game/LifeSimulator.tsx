@@ -396,15 +396,83 @@ function PreviewModal({ onClose }: { onClose: () => void }) {
 }
 
 // ============================================================
+// 属性评级
+// ============================================================
+function getStatRating(stat: string, rawValue: number): string {
+  const v = rawValue;
+  switch (stat) {
+    case 'appearance':
+      if (v >= 86) return '倾国倾城';
+      if (v >= 71) return '闭月羞花';
+      if (v >= 51) return '玉树临风';
+      if (v >= 31) return '眉清目秀';
+      if (v >= 11) return '平平无奇';
+      return '其貌不扬';
+    case 'selfAcceptance':
+      if (v >= 86) return '心如明镜';
+      if (v >= 71) return '坚定不移';
+      if (v >= 51) return '日渐明朗';
+      if (v >= 31) return '初识自我';
+      if (v >= 11) return '迷茫彷徨';
+      return '自我否定';
+    case 'socialMask':
+      if (v >= 86) return '深柜无言';
+      if (v >= 71) return '表里不一';
+      if (v >= 51) return '道貌岸然';
+      if (v >= 31) return '半遮半掩';
+      if (v >= 11) return '偶有遮掩';
+      return '表里如一';
+    case 'money':
+      if (v > 10000) return '富可敌国';
+      if (v >= 5001) return '富甲一方';
+      if (v >= 2001) return '金玉满堂';
+      if (v >= 501) return '小有积蓄';
+      if (v >= 101) return '略有积蓄';
+      if (v >= 0) return '一贫如洗';
+      return '负债累累';
+    case 'followers':
+      if (v > 20000) return '一呼百应';
+      if (v >= 5001) return '万众瞩目';
+      if (v >= 1001) return '广为人知';
+      if (v >= 101) return '渐露头角';
+      if (v >= 10) return '小有名气';
+      return '默默无闻';
+    case 'health':
+      if (v >= 86) return '长生久视';
+      if (v >= 71) return '福寿双全';
+      if (v >= 51) return '身强体壮';
+      if (v >= 31) return '中规中矩';
+      if (v >= 11) return '体弱多病';
+      return '病入膏肓';
+    case 'trauma':
+      if (v >= 86) return '心如死灰';
+      if (v >= 71) return '命若悬丝';
+      if (v >= 51) return '创巨痛深';
+      if (v >= 31) return '多愁善感';
+      if (v >= 11) return '偶有伤痕';
+      return '心如止水';
+    case 'genderSpectrum':
+      if (v >= 86) return '国色天香';
+      if (v >= 71) return '嫣然百媚';
+      if (v >= 51) return '柔美多姿';
+      if (v >= 31) return '温文尔雅';
+      if (v >= 11) return '中性内敛';
+      return '阳刚之气';
+    default:
+      return '';
+  }
+}
+
+// ============================================================
 // 属性条
 // ============================================================
-function MiniStat({ label, value, color }: { label: string; value: number; color: string }) {
+function MiniStat({ label, value, rating, color }: { label: string; value: number; rating?: string; color: string }) {
   const pct = Math.max(0, Math.min(100, value));
   return (
-    <div className="bg-white/5 rounded-lg px-1.5 py-1 border border-white/5">
-      <div className="flex items-baseline gap-0.5 mb-0.5">
-        <span className="text-[10px] text-gray-400 leading-none">{label}</span>
-        <span className="text-[10px] font-mono font-medium text-white leading-none tabular-nums min-w-[28px]">{value}</span>
+    <div className="bg-white/5 rounded-lg px-2 py-1.5 border border-white/5">
+      <div className="flex items-center justify-between mb-0.5">
+        <span className="text-[11px] text-gray-400 leading-none">{label}</span>
+        <span className="text-[11px] font-medium text-white leading-none">{rating}</span>
       </div>
       <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
@@ -490,13 +558,14 @@ function EndingScreen({ onRestart }: { onRestart: () => void }) {
 
         <div className="bg-white/5 rounded-xl p-4 space-y-2 text-left">
           <p className="text-xs text-gray-500 mb-2">最终属性</p>
-          <MiniStat label="颜值" value={state.stats.appearance} color="#f472b6" />
-          <MiniStat label="精神" value={state.stats.selfAcceptance} color="#60a5fa" />
-          <MiniStat label="伪装" value={state.stats.socialMask} color="#94a3b8" />
-          <MiniStat label="经济储备" value={Math.min(100, state.stats.money / 100)} color="#fbbf24" />
-          <MiniStat label="网络影响" value={Math.min(100, state.stats.followers / 100)} color="#f87171" />
-          <MiniStat label="健康" value={state.stats.health} color="#34d399" />
-          <TagDisplay tags={state.tags} />
+          <MiniStat label="颜值" value={state.stats.appearance} rating={getStatRating('appearance', state.stats.appearance)} color="#f472b6" />
+          <MiniStat label="精神" value={state.stats.selfAcceptance} rating={getStatRating('selfAcceptance', state.stats.selfAcceptance)} color="#60a5fa" />
+          <MiniStat label="伪装" value={state.stats.socialMask} rating={getStatRating('socialMask', state.stats.socialMask)} color="#94a3b8" />
+          <MiniStat label="经济" value={Math.min(100, state.stats.money / 100)} rating={getStatRating('money', state.stats.money)} color="#fbbf24" />
+          <MiniStat label="影响" value={Math.min(100, state.stats.followers / 100)} rating={getStatRating('followers', state.stats.followers)} color="#f87171" />
+          <MiniStat label="健康" value={state.stats.health} rating={getStatRating('health', state.stats.health)} color="#34d399" />
+          <MiniStat label="创伤" value={state.stats.trauma} rating={getStatRating('trauma', state.stats.trauma)} color="#e879f9" />
+          <MiniStat label="女心" value={state.stats.genderSpectrum} rating={getStatRating('genderSpectrum', state.stats.genderSpectrum)} color="#fb923c" />
         </div>
 
         <button
