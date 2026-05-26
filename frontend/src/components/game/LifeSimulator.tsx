@@ -325,26 +325,42 @@ function formatEffects(effects: Partial<LifeStats>): string {
 // ============================================================
 function EventModal({
   event,
+  talents,
   onChoose,
 }: {
   event: LifeEvent;
+  talents: string[];
   onChoose: (choice: LifeChoice) => void;
 }) {
+  // 过滤：只显示无条件限制的选项 + 条件满足的天赋选项
+  const visibleChoices = event.choices.filter((c) => {
+    if (!c.requiredTalent) return true;
+    return talents.includes(c.requiredTalent);
+  });
+
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div className="w-full max-w-sm bg-gray-900 border border-white/10 rounded-2xl p-5 shadow-2xl">
         <h3 className="text-lg font-semibold text-white mb-2">{event.title}</h3>
         <p className="text-sm text-gray-300 leading-relaxed mb-5">{event.description}</p>
         <div className="space-y-2">
-          {event.choices.map((c, i) => (
-            <button
-              key={i}
-              onClick={() => onChoose(c)}
-              className="w-full text-left p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/15 transition-all text-sm text-gray-200 active:scale-[0.98]"
-            >
-              {c.text}
-            </button>
-          ))}
+          {visibleChoices.map((c, i) => {
+            const isTalentChoice = !!c.requiredTalent;
+            return (
+              <button
+                key={i}
+                onClick={() => onChoose(c)}
+                className={`w-full text-left p-3 rounded-xl border transition-all text-sm active:scale-[0.98] ${
+                  isTalentChoice
+                    ? 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/30 hover:border-amber-500/50 text-amber-100'
+                    : 'bg-white/5 hover:bg-white/10 border-white/5 hover:border-white/15 text-gray-200'
+                }`}
+              >
+                {isTalentChoice && <span className="text-[10px] text-amber-400 mr-1">[天赋]</span>}
+                {c.text}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -356,7 +372,7 @@ function EventModal({
 // ============================================================
 function PreviewModal({ onClose }: { onClose: () => void }) {
   const { state } = useLife();
-  const ending = useMemo(() => determineEnding(state.stats, state.tags), [state.stats, state.tags]);
+  const ending = useMemo(() => determineEnding(state.stats, state.tags, state.talents), [state.stats, state.tags]);
 
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -452,7 +468,7 @@ function TagDisplay({ tags }: { tags: string[] }) {
 // ============================================================
 function EndingScreen({ onRestart }: { onRestart: () => void }) {
   const { state } = useLife();
-  const ending = useMemo(() => determineEnding(state.stats, state.tags), [state.stats, state.tags]);
+  const ending = useMemo(() => determineEnding(state.stats, state.tags, state.talents), [state.stats, state.tags]);
 
   return (
     <div className="h-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white px-4">
@@ -526,10 +542,10 @@ export default function LifeSimulator() {
     return lifeEvents.filter((e) => {
       if (e.once && state.triggeredEvents.includes(e.id)) return false;
       if (age < e.minAge || age > e.maxAge) return false;
-      if (e.condition && !e.condition({ stats: state.stats, tags: state.tags, age })) return false;
+      if (e.condition && !e.condition({ stats: state.stats, tags: state.tags, talents: state.talents, age })) return false;
       return true;
     });
-  }, [state.stats, state.tags, state.triggeredEvents]);
+  }, [state.stats, state.tags, state.talents, state.triggeredEvents]);
 
   // 从候选池中选择事件：高优先级(>=90)必定触发，普通事件按概率随机
   const pickRandomEvent = useCallback((candidates: LifeEvent[], age: number): LifeEvent | null => {
@@ -557,6 +573,10 @@ export default function LifeSimulator() {
       dispatch({ type: 'END_GAME' });
       return;
     }
+
+    // 应用天赋年度被动效果
+    const ageStep = state.age >= 40 ? 4 : 1;
+    dispatch({ type: 'APPLY_PASSIVE', yearStep: ageStep });
 
     // 40岁后扫描未来4年内的事件
     let event: LifeEvent | null = null;
@@ -641,7 +661,6 @@ export default function LifeSimulator() {
     }
 
     // 没有事件，平淡年份
-    const ageStep = state.age >= 40 ? 4 : 1;
     const newAge = state.age + ageStep;
     if (newAge >= 100) {
       dispatch({ type: 'END_GAME' });
@@ -860,7 +879,7 @@ export default function LifeSimulator() {
 
       {/* 事件弹窗 */}
       {state.phase === 'event' && pendingEvent && (
-        <EventModal event={pendingEvent} onChoose={handleEventChoice} />
+        <EventModal event={pendingEvent} talents={state.talents} onChoose={handleEventChoice} />
       )}
 
       {/* 结局预览弹窗 */}

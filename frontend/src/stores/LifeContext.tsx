@@ -39,6 +39,7 @@ type LifeAction =
   | { type: 'SET_AGE'; age: number; year: number }
   | { type: 'TRIGGER_EVENT'; eventId: string }
   | { type: 'RESOLVE_EVENT'; choiceIndex: number; effects: Partial<LifeStats>; addTags: string[]; removeTags: string[]; record: YearRecord }
+  | { type: 'APPLY_PASSIVE'; yearStep: number }
   | { type: 'END_GAME' }
   | { type: 'RESET' };
 
@@ -178,6 +179,31 @@ function lifeReducer(state: LifeState, action: LifeAction): LifeState {
         phase: 'playing',
         currentEventId: null,
       };
+    }
+    case 'APPLY_PASSIVE': {
+      const selectedTalents = allTalents.filter((t) => state.talents.includes(t.id));
+      const passiveEffects: Partial<LifeStats> = {};
+      for (const t of selectedTalents) {
+        if (t.yearlyEffect) {
+          for (const [k, v] of Object.entries(t.yearlyEffect)) {
+            if (v !== undefined) {
+              passiveEffects[k as keyof LifeStats] = (passiveEffects[k as keyof LifeStats] || 0) + v * action.yearStep;
+            }
+          }
+        }
+      }
+      if (Object.keys(passiveEffects).length === 0) return state;
+      const newStats = clampStats({
+        appearance: state.stats.appearance + (passiveEffects.appearance ?? 0),
+        selfAcceptance: state.stats.selfAcceptance + (passiveEffects.selfAcceptance ?? 0),
+        socialMask: state.stats.socialMask + (passiveEffects.socialMask ?? 0),
+        money: state.stats.money + (passiveEffects.money ?? 0),
+        health: state.stats.health + (passiveEffects.health ?? 0),
+        followers: state.stats.followers + (passiveEffects.followers ?? 0),
+        trauma: state.stats.trauma + (passiveEffects.trauma ?? 0),
+        genderSpectrum: state.stats.genderSpectrum + (passiveEffects.genderSpectrum ?? 0),
+      });
+      return { ...state, stats: newStats };
     }
     case 'END_GAME': {
       return { ...state, phase: 'ended' };

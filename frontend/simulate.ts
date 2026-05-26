@@ -7,6 +7,7 @@ import {
   endings,
   drawTalents,
   determineEnding,
+  talents as allTalents,
 } from './src/data/storyData';
 import type { LifeStats, LifeEvent, LifeChoice } from './src/types/game';
 
@@ -67,10 +68,12 @@ interface SimResult {
 }
 
 function simulateOnce(): SimResult {
-  // 1. 天赋抽取（玩家随机选 0-3 个）
+  // 1. 天赋抽取（模拟玩家从10个中随机选 0-3 个）
   const pool = drawTalents(10);
   const pickCount = Math.floor(Math.random() * 4); // 0~3
-  const picked = pool.slice(0, pickCount);
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const picked = shuffled.slice(0, pickCount);
+  const talentIds = picked.map((t) => t.id);
 
   // 2. 属性分配
   const allocated = randomAllocStats();
@@ -114,6 +117,22 @@ function simulateOnce(): SimResult {
     nextAge = age + ageStep;
     if (nextAge > 100) nextAge = 100;
 
+    // 应用天赋被动效果
+    const selectedTalents = allTalents.filter((t: { id: string; yearlyEffect?: Partial<LifeStats> }) => talentIds.includes(t.id));
+    for (const t of selectedTalents) {
+      if (t.yearlyEffect) {
+        for (const [k, v] of Object.entries(t.yearlyEffect)) {
+          if (v !== undefined) (stats as any)[k] += v * ageStep;
+        }
+      }
+    }
+    // clamp after passive
+    stats.appearance = clamp(stats.appearance, 0, 100);
+    stats.socialMask = clamp(stats.socialMask, 0, 100);
+    stats.health = clamp(stats.health, 0, 100);
+    stats.trauma = clamp(stats.trauma, 0, 100);
+    stats.genderSpectrum = clamp(stats.genderSpectrum, 0, 100);
+
     // 查找候选事件
     let event: LifeEvent | null = null;
     let eventAge = nextAge;
@@ -124,7 +143,7 @@ function simulateOnce(): SimResult {
         const candidates = lifeEvents.filter((e) => {
           if (e.once && triggeredEvents.has(e.id)) return false;
           if (ca < e.minAge || ca > e.maxAge) return false;
-          if (e.condition && !e.condition({ stats, tags, age: ca })) return false;
+          if (e.condition && !e.condition({ stats, tags, talents: talentIds, age: ca })) return false;
           return true;
         });
         const picked = pickEvent(candidates, ca);
@@ -138,7 +157,7 @@ function simulateOnce(): SimResult {
       const candidates = lifeEvents.filter((e) => {
         if (e.once && triggeredEvents.has(e.id)) return false;
         if (nextAge < e.minAge || nextAge > e.maxAge) return false;
-        if (e.condition && !e.condition({ stats, tags, age: nextAge })) return false;
+        if (e.condition && !e.condition({ stats, tags, talents: talentIds, age: nextAge })) return false;
         return true;
       });
       event = pickEvent(candidates, nextAge);
@@ -200,7 +219,7 @@ function simulateOnce(): SimResult {
   }
 
   // 6. 判定结局
-  const ending = determineEnding(stats, tags);
+  const ending = determineEnding(stats, tags, talentIds);
   return { endingId: ending.id, deathAge, stats, tags };
 }
 

@@ -711,26 +711,36 @@ const cgMap: Record<string, React.ComponentType> = {
   ending_death_disappear: CGDeathDisappear,
 };
 
+const CG_EXTS = ['.webp', '.png'];
+
 export default function CGScene({ endingId }: { endingId: string }) {
   const SVGComponent = cgMap[endingId];
-  const [imgFailed, setImgFailed] = useState(false);
-  const imgSrc = `${import.meta.env.BASE_URL}cg/${endingId}.webp`;
+  const [extIdx, setExtIdx] = useState(0);
+  const [allFailed, setAllFailed] = useState(false);
+  const imgSrc = `${import.meta.env.BASE_URL}cg/${endingId}${CG_EXTS[extIdx]}`;
 
-  if (!SVGComponent) return null;
+  const handleError = () => {
+    if (extIdx + 1 < CG_EXTS.length) {
+      setExtIdx(extIdx + 1);
+    } else {
+      setAllFailed(true);
+    }
+  };
 
   return (
     <div className="w-full overflow-hidden rounded-xl mb-3 relative">
-      {/* 真实图片 — 优先显示，加载失败则隐藏 */}
-      {!imgFailed && (
+      {/* 真实图片 — 优先 webp，失败则尝试 png */}
+      {!allFailed && (
         <img
+          key={extIdx}
           src={imgSrc}
           alt=""
           className="w-full h-auto block"
-          onError={() => setImgFailed(true)}
+          onError={handleError}
         />
       )}
-      {/* SVG fallback — 图片未加载或失败时显示 */}
-      {imgFailed && <SVGComponent />}
+      {/* SVG fallback — 有 SVG 组件且所有图片格式均失败时显示 */}
+      {allFailed && SVGComponent && <SVGComponent />}
     </div>
   );
 }

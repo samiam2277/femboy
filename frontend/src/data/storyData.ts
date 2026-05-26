@@ -9,7 +9,8 @@ export interface LifeChoice {
   addTags?: string[];
   removeTags?: string[];
   resultText: string;
-  gameOver?: boolean; // 如果为 true，选择后将提前结束游戏（坏结局）
+  requiredTalent?: string;
+  gameOver?: boolean;
 }
 
 export interface LifeEvent {
@@ -39,6 +40,7 @@ export interface LifeStats {
 export interface EventContext {
   stats: LifeStats;
   tags: string[];
+  talents: string[];
   age: number;
 }
 
@@ -52,43 +54,43 @@ export interface Talent {
   description: string;
   effects: Partial<LifeStats>;
   addTags?: string[];
+  yearlyEffect?: Partial<LifeStats>;
   weight: number;
   rare?: boolean;
 }
 
 export const talents: Talent[] = [
   // 白色（普通）
-  { id: 'talent_beauty', name: '天生丽质', description: '你从小就被夸"长得好看"，这份底气伴随你一生。', effects: { appearance: 8 }, weight: 10 },
-  { id: 'talent_open_family', name: '开明家庭', description: '你的父母虽然不理解，但从不打骂。这份宽容让你少走很多弯路。', effects: { selfAcceptance: 5 }, addTags: ['family_support'], weight: 8 },
-  { id: 'talent_internet', name: '互联网原住民', description: '你很小就学会了上网，网络是你第二个家。', effects: { followers: 30 }, weight: 10 },
-  { id: 'talent_voice', name: '声线优势', description: '你的声音偏中性，伪声练习比别人快三倍。', effects: { genderSpectrum: 8, appearance: 3 }, weight: 8 },
-  { id: 'talent_art', name: '美术生', description: '你学过画画，对色彩和造型有敏锐的直觉。', effects: { appearance: 5, selfAcceptance: 3 }, weight: 8 },
-  { id: 'talent_music', name: '音乐生', description: '你学过乐器，气质里带着一种说不清的艺术感。', effects: { appearance: 5, selfAcceptance: 3 }, weight: 8 },
-  { id: 'talent_gamer', name: '游戏宅', description: '你在游戏里认识了很多朋友，虚拟世界给了你最初的自由。', effects: { socialMask: 5, followers: 15 }, weight: 10 },
-  { id: 'talent_sport', name: '运动神经', description: '你身材比例好，学跳舞和瑜伽都比别人快。', effects: { appearance: 5, health: 8 }, weight: 8 },
-  { id: 'talent_careful', name: '细心', description: '你做事很谨慎，很少留下把柄。', effects: { socialMask: 8 }, weight: 10 },
-  { id: 'talent_saver', name: '存钱罐', description: '你从小就会攒钱，每一笔支出都记在心里。', effects: { money: 500 }, weight: 8 },
+  { id: 'talent_beauty', name: '天生丽质', description: '你从小就被夸"长得好看"，这份底气伴随你一生。', effects: { appearance: 8 }, yearlyEffect: { followers: 3 }, weight: 10 },
+  { id: 'talent_open_family', name: '开明家庭', description: '你的父母虽然不理解，但从不打骂。这份宽容让你少走很多弯路。', effects: { selfAcceptance: 5 }, addTags: ['family_support'], yearlyEffect: { selfAcceptance: 1 }, weight: 8 },
+  { id: 'talent_internet', name: '互联网原住民', description: '你很小就学会了上网，网络是你第二个家。', effects: { followers: 30 }, yearlyEffect: { followers: 5 }, weight: 10 },
+  { id: 'talent_voice', name: '声线优势', description: '你的声音偏中性，伪声练习比别人快三倍。', effects: { genderSpectrum: 8, appearance: 3 }, yearlyEffect: { followers: 2 }, weight: 8 },
+  { id: 'talent_art', name: '美术生', description: '你学过画画，对色彩和造型有敏锐的直觉。', effects: { appearance: 5, selfAcceptance: 3 }, yearlyEffect: { appearance: 1 }, weight: 8 },
+  { id: 'talent_music', name: '音乐生', description: '你学过乐器，气质里带着一种说不清的艺术感。', effects: { appearance: 5, selfAcceptance: 3 }, yearlyEffect: { selfAcceptance: 1 }, weight: 8 },
+  { id: 'talent_gamer', name: '游戏宅', description: '你在游戏里认识了很多朋友，虚拟世界给了你最初的自由。', effects: { socialMask: 5, followers: 15 }, yearlyEffect: { followers: 3, health: -1 }, weight: 10 },
+  { id: 'talent_sport', name: '运动神经', description: '你身材比例好，学跳舞和瑜伽都比别人快。', effects: { appearance: 5, health: 8 }, yearlyEffect: { health: 1 }, weight: 8 },
+  { id: 'talent_careful', name: '细心', description: '你做事很谨慎，很少留下把柄。', effects: { socialMask: 8 }, yearlyEffect: { money: 15 }, weight: 10 },
+  { id: 'talent_saver', name: '存钱罐', description: '你从小就会攒钱，每一笔支出都记在心里。', effects: { money: 500 }, yearlyEffect: { money: 30 }, weight: 8 },
   // 蓝色（稀有）
-  { id: 'talent_empathy', name: '共情过载', description: '你能感受到别人的情绪，这份敏感让你更懂人心，也更容易受伤。', effects: { selfAcceptance: 5, trauma: 5 }, weight: 5, rare: true },
-  { id: 'talent_lucky', name: '幸运儿', description: '你的人生总有贵人相助，关键时刻总有人拉你一把。', effects: { selfAcceptance: 3, money: 300 }, weight: 5, rare: true },
-  { id: 'talent_double', name: '双重身份', description: '你天生擅长扮演两个自己，切换自如。', effects: { socialMask: 10, selfAcceptance: 3 }, weight: 5, rare: true },
-  { id: 'talent_dress', name: '女装天赋', description: '你第一次化妆就惊艳了所有人，仿佛天生就该这样。', effects: { appearance: 12, genderSpectrum: 5 }, weight: 5, rare: true },
-  { id: 'talent_photo', name: '摄影眼', description: '你镜头下的自己总是最美的。', effects: { appearance: 5, followers: 50 }, weight: 5, rare: true },
-  { id: 'talent_social', name: '社交牛逼症', description: '你不怕生，到哪里都能交到朋友。', effects: { socialMask: 8, followers: 30 }, addTags: ['has_friends'], weight: 5, rare: true },
-  { id: 'talent_night', name: '夜猫子', description: '你的灵感在深夜爆发，深夜直播数据总是最好的。', effects: { followers: 40, appearance: 3 }, weight: 5, rare: true },
-  { id: 'talent_early', name: '早熟的灵魂', description: '你比同龄人更早想清楚自己是谁。', effects: { selfAcceptance: 7, genderSpectrum: 5 }, weight: 5, rare: true },
+  { id: 'talent_empathy', name: '共情过载', description: '你能感受到别人的情绪，这份敏感让你更懂人心，也更容易受伤。', effects: { selfAcceptance: 5, trauma: 5 }, yearlyEffect: { selfAcceptance: 1, trauma: 1 }, weight: 5, rare: true },
+  { id: 'talent_lucky', name: '幸运儿', description: '你的人生总有贵人相助，关键时刻总有人拉你一把。', effects: { selfAcceptance: 3, money: 300 }, yearlyEffect: { money: 20 }, weight: 5, rare: true },
+  { id: 'talent_double', name: '双重身份', description: '你天生擅长扮演两个自己，切换自如。', effects: { socialMask: 10, selfAcceptance: 3 }, yearlyEffect: { socialMask: 1 }, weight: 5, rare: true },
+  { id: 'talent_dress', name: '女装天赋', description: '你第一次化妆就惊艳了所有人，仿佛天生就该这样。', effects: { appearance: 12, genderSpectrum: 5 }, yearlyEffect: { appearance: 1 }, weight: 5, rare: true },
+  { id: 'talent_photo', name: '摄影眼', description: '你镜头下的自己总是最美的。', effects: { appearance: 5, followers: 50 }, yearlyEffect: { followers: 5 }, weight: 5, rare: true },
+  { id: 'talent_social', name: '社交牛逼症', description: '你不怕生，到哪里都能交到朋友。', effects: { socialMask: 8, followers: 30 }, addTags: ['has_friends'], yearlyEffect: { followers: 3, money: 10 }, weight: 5, rare: true },
+  { id: 'talent_night', name: '夜猫子', description: '你的灵感在深夜爆发，深夜直播数据总是最好的。', effects: { followers: 40, appearance: 3 }, yearlyEffect: { followers: 4, health: -1 }, weight: 5, rare: true },
+  { id: 'talent_early', name: '早熟的灵魂', description: '你比同龄人更早想清楚自己是谁。', effects: { selfAcceptance: 7, genderSpectrum: 5 }, yearlyEffect: { selfAcceptance: 1 }, weight: 5, rare: true },
   // 金色（传说）
-  { id: 'talent_chosen', name: '天选之人', description: '你仿佛被命运选中，每一步都踩在风口上。', effects: { appearance: 5, selfAcceptance: 5, followers: 100, money: 500 }, weight: 2, rare: true },
-  { id: 'talent_butterfly', name: '破茧成蝶', description: '你经历过最深的黑暗，所以也最懂光。', effects: { selfAcceptance: 11, trauma: 10 }, weight: 2, rare: true },
-  { id: 'talent_lonely', name: '百年孤独', description: '你注定要走一条少有人走的路，但这条路的尽头，有只属于你的风景。', effects: { selfAcceptance: 7, socialMask: -5 }, weight: 2, rare: true },
-  { id: 'talent_prophet', name: '跨性别先知', description: '你在一个还不理解你的时代，提前看见了未来。', effects: { genderSpectrum: 15, selfAcceptance: 5 }, weight: 2, rare: true },
-  { id: 'talent_avatar', name: '虚拟化身', description: '你的灵魂似乎更适合活在数字世界。', effects: { followers: 100, appearance: 5 }, weight: 2, rare: true },
+  { id: 'talent_chosen', name: '天选之人', description: '你仿佛被命运选中，每一步都踩在风口上。', effects: { appearance: 5, selfAcceptance: 5, followers: 100, money: 500 }, yearlyEffect: { followers: 5, money: 25, appearance: 1 }, weight: 2, rare: true },
+  { id: 'talent_butterfly', name: '破茧成蝶', description: '你经历过最深的黑暗，所以也最懂光。', effects: { selfAcceptance: 11, trauma: 10 }, yearlyEffect: { selfAcceptance: 1, trauma: -1 }, weight: 2, rare: true },
+  { id: 'talent_lonely', name: '百年孤独', description: '你注定要走一条少有人走的路，但这条路的尽头，有只属于你的风景。', effects: { selfAcceptance: 7, socialMask: -5 }, yearlyEffect: { selfAcceptance: 2, socialMask: -1 }, weight: 2, rare: true },
+  { id: 'talent_prophet', name: '跨性别先知', description: '你在一个还不理解你的时代，提前看见了未来。', effects: { genderSpectrum: 15, selfAcceptance: 5 }, yearlyEffect: { genderSpectrum: 1, selfAcceptance: 1 }, weight: 2, rare: true },
+  { id: 'talent_avatar', name: '虚拟化身', description: '你的灵魂似乎更适合活在数字世界。', effects: { followers: 100, appearance: 5 }, yearlyEffect: { followers: 8 }, weight: 2, rare: true },
 ];
 
 export function drawTalents(count: number): Talent[] {
-  const pool = talents.map((t) => ({ ...t, score: Math.random() * t.weight }));
-  pool.sort((a, b) => b.score - a.score);
-  return pool.slice(0, count);
+  const shuffled = [...talents].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
 }
 
 export const DEFAULT_STATS: LifeStats = {
@@ -105,6 +107,7 @@ export const DEFAULT_STATS: LifeStats = {
 // 辅助函数：检查标签
 export const hasTag = (tags: string[], tag: string) => tags.includes(tag);
 export const hasAnyTag = (tags: string[], check: string[]) => check.some((t) => tags.includes(t));
+export const hasAllTalents = (talents: string[], required: string[]) => required.every((t) => talents.includes(t));
 
 // ============================================================
 // 时代背景新闻
@@ -883,6 +886,54 @@ export const lifeEvents: LifeEvent[] = [
     category: 'general',
   },
 
+// --- 24岁：同人画师/周边经济 ---
+  {
+    id: "mile24_doujin_artist",
+    minAge: 24, maxAge: 24, priority: 96,
+    title: "二十四岁·亚克力上的自己",
+    description: "你的房间里堆满了亚克力立牌、吧唧、色纸和手绘挂画。最开始你只是给自己画——把自己画成喜欢的角色，发在LOFTER和小红书上。然后有人私信问「接不接稿」，你接了第一单：五十块，画一个少女的侧脸。第二单是八十块——有人想要自己OC（原创角色）的全身立绘。第三单是两百块——一个同人社团找你画展会限定的明信片套装。你的板绘作品开始出现在漫展的摊位上——不是你自己的摊，但你路过时会偷偷看一眼：自己画的角色正被别人拿在手里端详。那种感觉很奇怪——你的才华终于被看见了，但不是用你的脸，是用你的手。",
+    condition: (ctx) => ctx.stats.appearance >= 15 && hasTag(ctx.tags, "route_freelance"),
+    choices: [
+      { text: "开网店，把自己的画做成周边卖", effects: { money: 600, followers: 200, selfAcceptance: 6, appearance: 3 }, addTags: ["has_job", "net_active"], resultText: "你在淘宝开了一家小店，主营自己画的亚克力立牌和色纸。第一批发了一百件——三天卖完。补货时你在包装盒里塞了一张手写的小卡片：「谢谢你喜欢我的画。这些角色陪了我很久，希望他们也能陪你。」有个买家在评价里写了三百字，最后一句是：「卡片我舍不得扔，夹在日记本里了。」你看着那条评价，觉得那张五十块的第一单，是你这辈子做过最值的投资。" },
+      { text: "接商业外包，给游戏公司画立绘", effects: { money: 900, appearance: 4, followers: 100, health: -3 }, addTags: ["has_job"], resultText: "一家小型独立游戏公司找到了你——他们需要一个「中性气质的角色设计师」。你没有告诉他们你的真实身份，但你在设计角色时偷偷加了很多自己的理解：不那么男性也不那么女性的轮廓、可以被多种性别解读的服装。游戏发售后，评论区有人说「这个角色的性别设定好有意思」，有人说「感觉设计师一定是个很懂的人」。你看着那些评论笑了——你没署名，但你的灵魂在那款游戏里永远留了下来。" },
+      { text: "只当爱好，不接商单——怕爱好变成KPI后不再快乐", effects: { selfAcceptance: 9, appearance: 5, followers: 100, trauma: -3 }, addTags: ["peace"], resultText: "你拒绝了所有商业合作的私信。有人说「你错过了变现的机会」，你说「我不想把我最自由的表达变成最累的工作」。你继续画——画你想画的、画没人付费的、画那些「不够商业但够真实」的。某天你画了一张自画像——画里的你穿着你一直想穿但没勇气穿的裙子。发出去之后收到一条评论：「这张画让我觉得，也许我也可以。」你不知道对方是谁，但你在那条评论下回复了两个字：「可以。」" },
+    ],
+    once: true,
+    category: "career",
+  },
+
+  // --- 24岁：大学路线·继续深造还是进入社会 ---
+  {
+    id: "mile24_college_further",
+    minAge: 24, maxAge: 24, priority: 96,
+    title: "二十四岁·深造与逃避之间",
+    description: "考研成绩出来了。你考上了——一所比本科更好的学校，专业全国排名前五。父母在电话里很高兴，亲戚群里开始转发「恭喜XX考上研究生」。但你坐在电脑前看着录取通知书，迟迟没有点确认。你知道自己为什么考研——不是因为热爱学术，是因为不想进入那个需要穿西装、需要说「我是男生」、需要把灵魂叠成A4纸大小的职场。研究生三年，可以多当三年「学生」——不用被迫回答那些你不知道怎么回答的问题。但三年之后呢？你再考博？再逃避三年？你到底是在深造，还是在拿学位证砌一堵墙？",
+    condition: (ctx) => hasTag(ctx.tags, "route_college"),
+    choices: [
+      { text: "读研，但选了离家乡最远的城市——给自己空间", effects: { selfAcceptance: 8, money: -400, health: 3, trauma: -3 }, addTags: ["student"], resultText: "你选了厦门。不是因为这所学校最好——是因为它离你家两千公里。你租了一间可以看海的小单间，窗台上摆了第一盆植物——和多肉一起放在窗台上的，是你的第一支粉底液。研究生宿舍没人管你几点回来、穿什么衣服。你终于有了一个可以锁门的房间——不是衣柜，是房间。你站在窗边，海风把窗帘吹起来。你第一次觉得，自由不是「想去哪就去哪」，是「在属于你的空间里，不用对任何人解释你是谁」。" },
+      { text: "放弃读研，直接去大城市找工作——不想再躲在校园里", effects: { money: 600, socialMask: 6, selfAcceptance: 3, health: -3 }, addTags: ["has_job"], resultText: "你把录取通知书折好，放进了抽屉——和六岁时那条裙子的照片放在同一个抽屉里。然后你买了去北京的高铁票。你在望京找到了一份工作、一个合租房、和一个每天需要坐一小时地铁的通勤。你不再是「学生」了——你是「职场人」。但你在入职表上填「性别」时笔顿了两秒。两秒之后你选了一个选项，然后翻到下一页。你没有骗任何人——你只是还没有准备好对那些不知道怎么理解你的人解释。等站稳了再说，你对自己说。然后你开始工作。" },
+      { text: "申请海外留学——换个国家，也许换个活法", effects: { selfAcceptance: 8, money: -600, appearance: 3, followers: 100 }, addTags: ["student"], resultText: "你申请了东京的语言学校。不是名校，但学费付得起。到了日本之后你发现了一件事：走在涩谷的街上穿裙子的男生不只你一个。没有人盯着你看。你在原宿买了一条裙子——不是「偷偷买」，是在试衣间试完、用正常语气跟店员说「これください」。店员微笑着说「ありがとうございます」。就这些。没有猎奇的眼神、没有低声的议论。一件衣服。一个普通人。一个下午。你走出店铺时忽然发现：你要的不是签证——你要的是一整个不需要解释的人生。" },
+    ],
+    once: true,
+    category: "career",
+  },
+
+  // --- 24岁：打工路线·技术晋升/考证 ---
+  {
+    id: "mile24_worker_skillup",
+    minAge: 24, maxAge: 24, priority: 96,
+    title: "二十四岁·一张能带你离开的证书",
+    description: "你的工友小张辞职了。他比你晚进厂两年，但考了一个电工证之后跳槽到了市里的物业公司——工资翻了一倍，不用再上夜班。他走之前在食堂请你吃了一碗面，说：「厂里学不到东西的。这条线上你站十年还是一个操作工——手上的动作熟练到可以闭眼做，但你的价值不会涨。」你看着他那张电工证——红色的塑料皮，照片上他在笑，露出因为长期夜班而泛黄的牙。你翻了翻自己的银行余额。够报一个培训班。但你每天工作十二小时，如果不睡觉去上课，你会在流水线上走神然后受伤。如果不考证，你就在这里再干十年。",
+    condition: (ctx) => hasTag(ctx.tags, "route_worker"),
+    choices: [
+      { text: "咬牙报班，白天上课晚上夜班——用命换一条新路", effects: { money: 500, health: -5, appearance: 6, selfAcceptance: 8 }, addTags: ["has_job"], resultText: "你报了高级电工班。一周三次，下午四点到六点——刚好卡在你日班下班后、晚班上班前。你有两个小时的空档：脱掉工装、坐四十分钟公交、在教室里坐两个小时、再坐四十分钟回来、换上工装、打卡上夜班。前两周你在地铁上睡着了三次，有一次坐过了站，醒来时车厢是空的，终点站的灯管在嗡嗡响。第三个月你拿到了证书。红色塑料皮，和你工友的一模一样。你拍了张照发给小张，他秒回了三个大拇指。然后你打开了招聘软件——第一次以「有证」的身份投简历。你没有辞掉工厂的工作——你需要吃饭。但那张证书在你的工具箱里，像一个还没兑现的承诺。你知道，很快了。" },
+      { text: "辞掉工厂，全职去技校学一年——彻底转行", effects: { selfAcceptance: 10, money: -600, health: 6, appearance: 5 }, addTags: ["student"], removeTags: ["has_job"], resultText: "辞职信写了一行半——「家里有事，申请辞职。谢谢六年来的照顾。」其实没有「照顾」，只有十二小时的班、噪音、和工友偶然递来的一根烟。宿舍里的东西不多——几件衣服、一双工鞋、和一整套化妆工具。你把它们装进了一个编织袋，坐上了去省城的火车。技校的一年是你二十四年来最累也最充实的一年——不是因为课程难，是因为你每天都能在学完电路图和美发技术之后，回到自己的出租屋，穿着你最喜欢的衣服睡觉。没有人查寝。没有人在你床头嘲笑那张被你贴在墙上的动漫海报。一年后你拿到了证，去了一家美容美发连锁店。老板看着你的简历说：「你之前在工厂干了六年？」你说：「嗯。但我真正想学的，是现在这行。」他看了你一眼，然后说：「明天来上班。」" },
+      { text: "算了。考证要钱、要时间、要精力——你一样都没有", effects: { socialMask: 10, trauma: 8, selfAcceptance: -5 }, addTags: ["poor"], resultText: "你把小张的那张电工证照片存进了手机相册——和你存了六年的那些穿搭教程放在同一个文件夹里。你没有报名。不是因为不想——是因为你算过了：学费两千、交通费每月一百二、考证费三百。加起来是你三个月的饭钱。而且你每天已经站了十二个小时，你的腰在疼、你的手在抖、你的睡眠不足让眼睛周围有了一圈洗不掉的暗色。有的人生下来就有Plan B，你的人生只有Plan A——而A是唯一的一条路。你继续在流水线上站着，手指在工件上做着你闭眼都能做的动作。但你开始在午休时看电工理论的书——不急，一页一页看。反正流水线不会跑掉，你也不会。" },
+    ],
+    once: true,
+    category: "career",
+  },
+
   // ============================================================
   //  26岁 · 属性条件分叉
   // ============================================================
@@ -1110,6 +1161,54 @@ export const lifeEvents: LifeEvent[] = [
     category: 'general',
   },
 
+// --- 26岁：独立妆娘/摄影师的第一次商业大片 ---
+  {
+    id: "mile26_makeup_artist_break",
+    minAge: 26, maxAge: 26, priority: 97,
+    title: "二十六岁·镜头后的你",
+    description: "你接到了一个电话——不是闲鱼上的个人委托，是一个正经的摄影工作室。他们说在一场漫展上看到了你帮人化的妆——「那个芙宁娜的妆面处理非常专业，我们想请你做我们下个商业项目的化妆师。」项目是拍一组「性别模糊」为主题的时尚大片——请了三个模特，需要一个懂妆造的人来设计每个人的妆容风格。酬金是你在工厂时两个月的工资。你挂了电话，对着化妆镜里的自己笑了——不是因为钱，是因为有人第一次用「专业」来形容你苦练了十年的手艺。你拿了十年的化妆刷，从最早的偷用妈妈的粉饼，到在漫展厕所里帮人补妆，到如今有人为你的手艺付费。这支刷子，终于不只是用来遮盖——是用来创造了。",
+    condition: (ctx) => ctx.stats.appearance >= 25 && hasTag(ctx.tags, "route_freelance"),
+    choices: [
+      { text: "接下项目，用这个机会正式进入时尚行业", effects: { appearance: 12, followers: 400, money: 800, selfAcceptance: 6, health: -3 }, addTags: ["has_job", "net_active"], resultText: "拍摄那天你凌晨四点就到了影棚——比导演还早。你带了整套化妆箱：粉底液十二个色号（包括你自己调的那三个市面上买不到的中性色）、眼影盘八盒、和一支用了五年但最顺手的眼线笔。第一个模特坐在你面前时化妆镜里映着两盏柔光灯。你深吸一口气，像对着自己化妆那样对他下手——不藏不掩，只是让他更好看。成片出来后所有人都盯着模特的妆容问「这个妆谁画的」。你没有上前——你站在化妆台旁边，手里还拿着那把旧刷子。但你的名字已经在别人嘴里传了。" },
+      { text: "只做圈内的项目——不想让主流审美定义自己的风格", effects: { selfAcceptance: 10, followers: 250, money: 300, appearance: 7 }, addTags: ["has_friends", "net_active"], resultText: "你婉拒了那个工作室，但把它推荐给了一个也在做化妆的姐妹。你说：「我不太适合商业拍摄——我不喜欢别人告诉我「这个妆不够man」或者「这个妆太女了」。我只化我想化的。」你继续在漫展和cos圈里接单——化那些「不够主流但足够真实」的妆。有人说你「格局小」，但你在那一年收到了六十七张返图——每张里都有人穿着你化的妆在笑。你在手机备忘录里把每个客户的名字都记下来了。比起被时尚圈认可，你更在乎被那些人记住。" },
+      { text: "没有接——怕暴露自己的圈内身份影响「正常生活」", effects: { socialMask: 12, trauma: 9, selfAcceptance: -5 }, addTags: ["deep_closet"], resultText: "你回电话说「最近时间排不开」，然后挂了。挂完之后你看着桌上的化妆箱——那是你花了八年攒齐的装备，每件你都能叫出名字和价格。你知道自己化得比大多数持证化妆师都好。但你也知道，一旦接了那个项目，你的化妆作品会被发到网上——可能会被同事看到、被家里人看到。你在「专业化妆师」和「那个不能被发现的自己」之间，选了后者。那天晚上你把化妆品收了，箱子合上，推到了床底下。它在黑暗中静默，和你的勇气一起。" },
+    ],
+    once: true,
+    category: "career",
+  },
+
+  // --- 26岁：大学/白领路线·逃离996 ---
+  {
+    id: "mile26_college_quit996",
+    minAge: 26, maxAge: 26, priority: 97,
+    title: "二十六岁·凌晨两点半的工位",
+    description: "这是你本周第四次加班到凌晨了。写字楼里的灯管已经灭了一半，你的工位是这一层唯一亮着的地方。你在做的PPT明天要给总监汇报，但其实你三周前就知道这个项目没意义——它不会改变任何事，只是「完成」了某个KPI。你看着电脑右下角的时间跳到凌晨两点半，然后看向窗外——玻璃幕墙上映着你的脸。二十六岁，黑眼圈比大学期末考试周还重，工资比刚入职时翻了一倍但焦虑也翻了一倍。你忽然想起二十岁那个在大学宿舍里画裙子的自己——他会不会对此刻的你说「这就是你考研换来的生活」？",
+    condition: (ctx) => hasTag(ctx.tags, "route_college") && hasTag(ctx.tags, "has_job"),
+    choices: [
+      { text: "交辞职信，裸辞去了一家小型独立工作室", effects: { selfAcceptance: 9, money: -300, health: 8, followers: 100 }, addTags: ["route_freelance", "has_job"], resultText: "你辞掉了月薪两万的工作，去了一家只有九个人的设计工作室。工资少了三分之一，但老板在面试时看到你作品集里的那些「个人项目」后说了一句：「这些才是真正吸引我的。」你入职第一天穿了裙子——不是挑衅，是真的想。没有人说什么。下午茶时新同事问你「你的style很有意思」，你回了四个字：「谢谢你懂。」当天晚上你十点就睡了——不是加班到十点，是躺在床上，觉得今天过得很像自己。" },
+      { text: "调岗去公司的包容性项目组，从内部推动改变", effects: { selfAcceptance: 8, money: 600, health: 3, socialMask: 3 }, addTags: ["mentor", "has_job"], resultText: "你没有离职。而是在季度复盘会上提了一份十八页的提案——关于公司如何在「包容性」方面做得更好：不只是性别、不只是挂在墙上的标语、是落实到招聘和着装规定里的具体条款。三个月的拉扯之后，公司成立了一个DEI（多元包容）小组，你做了组长。有人说你「太政治正确了」，但你每周收到几封匿名邮件说「谢谢你」——那些邮件来自同一个公司的、同样在格子间里藏着自己的人。你没有回复它们。但你把每一封都存好了。" },
+      { text: "继续熬。房贷要还。父母要养。没有任性的资本", effects: { socialMask: 10, trauma: 10, money: 500, selfAcceptance: -5, health: -5 }, addTags: ["deep_closet"], resultText: "你没有辞职。你继续加班、做PPT、在凌晨两点半对着玻璃幕墙里的自己发呆。你告诉自己「等攒够了钱、等房贷还完、等一切都稳定了」——但每个月底看账单的时候，那个「以后」又往后推了一个月。你父母的医药费、老家房子的翻新费、弟弟的学费——你不只是一个人，你是一整个家庭的经济支柱。你在所有「应该」和唯一一个「渴望」之间选择前者，因为后者没有人买单。凌晨三点你关上电脑，坐末班地铁回家。车厢里只有两个人——你和一个穿着女装的中年男人。他比你大十几岁，但他眼里有一种你失去很久的光。你们谁也没有看谁。但下车时他在你旁边说了一句话——轻得像是在对自己说：「撑住。」你不知道他是在跟你说还是在跟自己说。但你把这两个字刻进了骨头里。撑住。" },
+    ],
+    once: true,
+    category: "career",
+  },
+
+  // --- 26岁：打工路线·产线关停/被迫重来 ---
+  {
+    id: "mile26_worker_laidoff",
+    minAge: 26, maxAge: 26, priority: 97,
+    title: "二十六岁·最后一张工资条",
+    description: "公告贴在食堂门口：工厂下个月关停三条产线，裁员三百人。你的名字在上面——不是第一个，也不是最后一个。你在这条流水线上站了八年，从学徒到熟练工到组长再到被裁——八年被一张A4纸概括了。财务给你算了遣散费：八年工龄，四万块。你在签收单上签了自己的名字——那张工资条上的字迹比你在任何地方写的都丑。你拿着那张纸走出财务室，阳光很亮。你在这家厂花了一万多个小时做你闭着眼都能做的事——那些动作已经刻进了你的身体。但现在这台身体要被「优化」了，和那些被淘汰的旧机器一起抬出门。你站在工厂门口的公交站牌下，手里是遣散费和一张不知道往哪开的公交卡。你的下一站是哪？",
+    condition: (ctx) => hasTag(ctx.tags, "route_worker"),
+    choices: [
+      { text: "用遣散费和积蓄，去省城学了全套美发课程", effects: { appearance: 10, selfAcceptance: 10, money: -900, followers: 100 }, addTags: ["student"], removeTags: ["has_job"], resultText: "你把遣散费全交了学费——省城最好的美发学校，三个月的全日制课程。报到那天你是全班年龄最大的学生，也是唯一的男生。但第一周实训结束后，老师说你有「练过的手」——八年流水线让你的手指稳定性超越了所有人。三个月后你拿了毕业证，去了一家网红理发店上班。第一个客人是个女生，她说「我想要那种帅气的短发——不是「女生短发」的那种帅气，是帅。」你懂了。你给她剪了一个让她对着镜子笑了三分钟的头发。她走了之后你的同事问你「你怎么那么懂女生的想法」，你说「因为我也想过被人剪成自己想要的样子是什么感觉。」" },
+      { text: "几个被裁的兄弟合伙开了家小作坊——自己给自己干", effects: { money: 700, selfAcceptance: 7, health: -5, socialMask: 5 }, addTags: ["has_job", "has_friends"], resultText: "你和老张、小赵三个人凑了遣散费，在工业区边缘租了一个四十平的铁皮棚子——做简单的零件加工。第一个月亏了两千，第二个月保本，第三个月接了一单急活三班倒，赚了所有人加起来的遣散费。但有一天半夜你在铁皮棚子里打地铺醒来，闻着空气里的机油味和方便面的味道，看着天花板的锈迹，发现自己笑了——不是因为赚钱了，是因为这是第一次没有人告诉你「做什么、做多少、做多久」。老板是你自己。虽然你这个老板还在地铺上睡觉，但你睡得比在工厂宿舍里踏实。" },
+      { text: "认命。去了另一家工厂，继续做操作工", effects: { socialMask: 12, trauma: 10, selfAcceptance: -6, money: 300 }, addTags: ["deep_closet", "poor"], resultText: "两周后你找到了新工作——另一个工业园区的另一家工厂的另一条流水线。工作内容和你之前做了八年的一模一样。面试时经理翻了翻你的简历说「有经验，挺好」，然后给你盖了章。你没有告诉他你在旧工厂里偷偷建的那间化妆室——那些午休的十五分钟你用生命挤出来的自由。新工厂没有废弃更衣室。你也没有再找一面镜子。你只是每天准点上班、准点下班、准点打卡，准点变成一台不需要思考的机器。某天吃午饭的时候一个新人问你「哥，你在这里干多久了」，你说「刚来」。但其实你已经干了八年了。换个厂牌而已，人生没换。" },
+    ],
+    once: true,
+    category: "career",
+  },
+
   // ============================================================
   //  30岁 · 属性条件分叉
   // ============================================================
@@ -1335,6 +1434,70 @@ export const lifeEvents: LifeEvent[] = [
     ],
     once: true,
     category: 'general',
+  },
+
+// --- 30岁：自由职业路线·工作室/社团主理人 ---
+  {
+    id: "mile30_studio_founder",
+    minAge: 30, maxAge: 30, priority: 96,
+    title: "三十岁·你的招牌挂在门口",
+    description: "你的工作室开在一条安静的街上——不大，但门口挂着的招牌上写着你的名字和一串英文：「XX Studio · Gender-Free Beauty」。店里有两面墙：一面墙上挂着你这十年来的作品——从最早那张化妆前和化妆后的对比照，到后来帮人做的全套造型设计、cos委托返图、和那些你不知道什么时候被偷拍的「你在帮别人化妆时侧脸专注的样子」。另一面墙是空白的——你留着它给新人贴自己的作品。这间工作室不只是你吃饭的地方——它是你从十八岁到现在走了十二年换来的：一张桌子、四面墙、和一个不需要藏起来的身份。今天开业，你不知道会不会有人来。但你站在门口，第一次觉得：自己不是「在逃」，是「在等」。等那些和你一样的人找到这扇门。",
+    condition: (ctx) => hasTag(ctx.tags, "route_freelance") && ctx.stats.appearance >= 30,
+    choices: [
+      { text: "把工作室做成「无性别美妆」的培训基地", effects: { selfAcceptance: 11, followers: 500, money: 800, health: -3 }, addTags: ["mentor", "has_job", "rich"], resultText: "你开始定期开课——教化妆、教穿搭、教怎么在这个不太友善的世界里保护自己的同时表达自己。你的学生有十七岁的、有二十五岁的、有四十三岁的。有一个四十多岁的男人第一次来上课时戴着口罩和帽子，坐在最后一排。你没有让他自我介绍。他没有说话。但第三节课后他留了下来，等所有人都走了，他摘掉口罩说：「我结婚了。有两个小孩。我从来没穿过裙子。但我想——至少学会给自己化一次妆。」你给他化了一次完整的妆。他看着镜子哭了。" },
+      { text: "做成一个开放式空间——任何人都可以来坐坐，不用消费", effects: { selfAcceptance: 13, followers: 350, money: -200, health: 6 }, addTags: ["mentor", "has_friends", "peace"], resultText: "你在门口放了一个小牌子，上面写着：「不需要消费。只需要做自己。」周末时工作室里坐满了人——有人在沙发上聊天、有人对着那面空白墙拍自己的作品、有人只是在角落里安静地刷手机。有人说你「不会做生意」，你笑了笑。因为你开这家店的目的从来不是赚钱——是给你十二年前那个在漫展门口站了两个小时不敢进去的自己，开一扇没锁的门。现在这扇门开着。里面有人。灯亮着。你做到了。" },
+      { text: "把工作室关了，把经验写成了一本公开手册", effects: { selfAcceptance: 12, followers: 600, money: 300, health: 9 }, addTags: ["mentor", "peace"], resultText: "实体店运营了两年后你决定关掉它——不是失败，是完成了使命。你把这两年的所有经验整理成了一份两百页的手册——从「怎么找靠谱的房东」到「怎么应对骚扰电话」到「怎么写第一份商业计划书」。你以开源方式发在网上，不署名。发布之后有一个陌生人在下面留言：「我二十一岁。看了你的手册，今天签了第一个工作室的租约。五年后等我开了自己的店，我会在门口留一个位置给你——不写名字，只留一盏灯。你知道是你的。」你看着那条留言，把屏幕截图存进了那个你从十八岁开始建、现在已经有上千张照片的文件夹——它的名字从「想成为的自己」变成了「已经走过的路」。" },
+    ],
+    once: true,
+    category: "career",
+  },
+
+  // --- 30岁：白领路线·打破办公室天花板 ---
+  {
+    id: "mile30_college_corporate_comeout",
+    minAge: 30, maxAge: 30, priority: 96,
+    title: "三十岁·在全员大会上举手的你",
+    description: "公司季度全员大会。三百人在线下、两千人在线上。最后一个议程是「员工心声」——通常没有人发言，主持人会在一阵沉默中说「那今天的大会到此结束」。但今天你举手了。三百双眼睛看向你，主持人迟疑了一秒然后说「请讲」。你站起来，手有点抖，声音也不太稳。你说：「我叫XX。在公司五年了。产品设计部。」你停顿了一下。会场静得能听见你自己的心跳。然后你说完了剩下的——关于你是谁、关于你五年里每天在工位上不敢接「那种电话」、关于你提案里那个被搁置了三次的「包容性着装建议」、关于你希望今天的举手能让下一个你不用再等到三十岁。你说完之后会场爆发出掌声——不是礼貌性的那种，是有人站起来鼓掌的那种。你坐下时发现自己的手心全是汗，但你的背第一次挺得那么直。",
+    condition: (ctx) => hasTag(ctx.tags, "route_college") && hasTag(ctx.tags, "has_job"),
+    choices: [
+      { text: "把这次出柜变成系统性改变——推动公司政策改革", effects: { selfAcceptance: 9, followers: 400, money: 600, trauma: -5 }, addTags: ["mentor", "open_public", "has_job"], resultText: "大会之后你被拉进了六个不同的群。有人说「终于有人在全员大会上说了」，有人说「我入职四年，今天第一次觉得这个公司可能适合我」。你利用这个机会联合了HR、法务、和几个部门的支持者，花了半年时间推动了一套「性别表达包容指南」——不是写在墙上的标语，是有具体执行条款和申诉机制的正式文件。通过那天，你站在公司大门口看着那个你每天进出但从未觉得属于你的logo，第一次觉得：这栋大楼里，你不再是一个「藏起来的例外」——你是一块改变了的砖。" },
+      { text: "举手之后辞职了——不是退缩，是不需要继续证明什么了", effects: { selfAcceptance: 13, money: -400, health: 9, followers: 300 }, addTags: ["peace", "mentor"], resultText: "你举手的那三十秒，已经完成了你在这家公司最想完成的事——被看见。辞职信在举手后的第三周交了上去。你Leader问你「为什么不留下继续推动改变」，你说：「有些改变，需要一个人留下来慢慢做。有些改变，需要一个人在做了之后转身离开——给别人看：不用一辈子待在这里也能活得很好。两种都是改变。」你离开后，有一个匿名的同事给全公司发了一封邮件，正文只有一行字：「今天终于有人穿了裙子来上班。」附件是一张工位自拍——裙子盖过了膝盖，鞋子和腰带是精心配过的。那个匿名发件人不是你。但你知道他是谁——他是所有后来的人。" },
+      { text: "举手之后被边缘化了——但你挺住了", effects: { selfAcceptance: 5, trauma: 12, socialMask: 8, followers: 150 }, addTags: ["has_job", "heart_broken"], resultText: "大会之后的那一周，你发现自己被移出了三个项目群。没有人通知你——只是你的名字悄悄地从名单上消失了。你在茶水间碰到同事时，他们的眼睛里多了一种你见过无数次但从不希望发生在自己身上的东西：那种「不知道该说什么就什么都不说吧」的回避。你在工位上坐了一整个月，假装不在乎。但你在乎。你花了一个下午把自己锁在消防通道里哭了一场。然后你回到工位，把你的ID卡重新别好在胸前——名字、部门、和那张你五年前入职时拍的「正常」照片。你看着那张照片想：也许该换了。下次拍ID照，你要穿你最喜欢的衬衫去。然后你打开电脑，继续做你的工作。不是因为不在乎——是因为你还有未完成的改变要留在这里做。" },
+    ],
+    once: true,
+    category: "career",
+  },
+
+  // --- 30岁：打工路线·返乡创业/把技艺带回老家 ---
+  {
+    id: "mile30_worker_hometown",
+    minAge: 30, maxAge: 30, priority: 96,
+    title: "三十岁·把一座城市带回那个县城",
+    description: "你买了一张回家的车票。老家还是老样子——三轮车在街上突突响，菜市场的水产摊还是那个女人在杀鱼。但你不完全一样了：你在这座城市里做了八年工厂、上了三年夜校、考了两个证、在这个别人觉得你「不属于」的行业里站稳了脚。现在你回来，不只是为了过年，是为了在县城最热闹的街上开一家店。一家可以做「你以前不敢做的头发」的店。你回老家不是退缩——是把你在外面吃过的苦换成一条路，好让这个县城里下一个「你」不用再坐十几个小时的火车才能找到一面愿意照他的镜子。",
+    condition: (ctx) => hasTag(ctx.tags, "route_worker"),
+    choices: [
+      { text: "在老家县城开了一家美发化妆综合店", effects: { money: 800, selfAcceptance: 10, followers: 200, appearance: 6 }, addTags: ["has_job", "mentor"], resultText: "你的店叫「剪·约」——名字简单，因为这里的客人大部分不认得多复杂的英文。第一个月来的全是熟人——你妈的朋友、邻居的介绍、和你高中同学的阿姨。有人看到你店里的装修——粉色配灰色，墙上挂着几张你在大城市拍的作品——然后说「这店和县城不太搭」。你说「正因为不太搭才要开」。开业半年后，有一天一个高中生走进来，戴着耳机、没怎么说话。洗头时你问他「想要什么样的」，他打开手机给你看了一张照片——一个短发的中性风女生。他说：「我想剪这样。」你懂了。你给他剪了一个他在镜子里看了很久的发型。他没有说什么，但他走的时候在门口站了一会儿——像在确认自己是不是终于变成了自己想变成的样子。" },
+      { text: "开了店但不是只为了赚钱——把它做成了线上的教学号", effects: { selfAcceptance: 12, followers: 800, money: 300, appearance: 5 }, addTags: ["mentor", "net_active"], resultText: "你在店里架了一台手机，开始录视频——教人怎么用平价化妆品化出高级感、怎么在没有专业工具的情况下剪一个「不会太短」的发型。你在一期视频里说：「我不是专业的老师。但我知道在一个没有镜子的世界里，第一面镜子有多重要。」那条视频被转发了上千次。有人评论说在他们的县城，理发店只会问「剪短还是更短」——从来没有人问过「你想要什么样」。你的视频成了那些人的「第一面镜子」。" },
+      { text: "店没开成——被老家的人指指点点，关掉了", effects: { selfAcceptance: -8, trauma: 15, socialMask: 12, money: -200 }, addTags: ["heart_broken", "regret"], resultText: "你高估了小县城的包容度。开业没几天就有人在你妈的小卖部里说「你儿子开了个什么店啊」——不是问号，是省略号，后面全是意味深长的沉默。有人在你的店门口放了烟头——不多，但每天早上都有新的。你妈没有说什么，但她的眼神越来越躲闪。坚持了四个月后你把店关了。招牌拆下来那天你在空店里坐了很久——四十平、四面白墙。你想起外面有人说「不应该回来」，有人说「早该走了」。你走了，但不是认输——是把这家店的钥匙留在了心里。等有一天，当你更强了、当这个县城不再那么冷了，你会回来。开着同一扇门。在同一个地方。" },
+    ],
+    once: true,
+    category: "career",
+  },
+
+  // --- 30岁：网红路线·隐退/转型天使投资人 ---
+  {
+    id: "mile30_streamer_retire",
+    minAge: 30, maxAge: 30, priority: 96,
+    title: "三十岁·最后一次打开直播间",
+    description: "你打开了直播间——和过去几千次一样：调整灯光、测试麦克风、确认滤镜关了。弹幕开始涌入——那些熟悉的ID、熟悉的语气、熟悉的问题。但你今天要说的话不是「欢迎新来的宝宝」。你看着屏幕里那个被数百万人看过、评论过、喜欢过也谩骂过的人，决定这是最后一次以「主播」的身份面对镜头。你的指尖在麦克风上轻轻敲了两下——这个手势伴了你五年——然后你说：「大家好。今天是我最后一次开播。」弹幕瞬间炸了：有人刷问号、有人说「不要走」、有人说「是不是被平台封了」。你静静看着弹幕刷过去，等你准备好的下一句。",
+    condition: (ctx) => hasTag(ctx.tags, "route_streamer") || hasTag(ctx.tags, "streamer"),
+    choices: [
+      { text: "转型做投资人，专门扶持「非典型创作者」", effects: { money: 1500, selfAcceptance: 11, followers: 500, health: 6 }, addTags: ["rich", "mentor"], removeTags: ["streamer"], resultText: "退播后你用这些年的积蓄成立了一个小型基金——专门投给那些被主流MCN拒绝的创作者：男娘美妆博主、四爱话题的UP主、用VTuber皮套做性别议题的虚拟主播。你的投资条款里写了一条「不干涉内容方向」——因为你清楚地记得当年你自己被MCN合同困住的那三年。第一年投了五个项目，三个活了下来。有一个受投人在他们的第一条爆款视频里说：「谢谢那个愿意投我的人——他自己也是从这座山里爬出来的。」你看到那条视频时没有转发、没有点赞——你只是把它存在了手机里，和那个十六岁时第一次化妆的照片放在一起。" },
+      { text: "把直播间变成「传承频道」——邀请新人上麦，给他们平台", effects: { selfAcceptance: 13, followers: 600, health: 3, money: 300 }, addTags: ["mentor", "net_active"], resultText: "你没有完全退播。你把频道改成了每周一次——不是你自己播，是你邀请那些「还没被看见」的人上麦。你的直播间成了圈内最安全的「新人展示台」。有人说你「把流量让给了后辈」，你笑了笑说「流量又不能吃到肚子里——但一个被看见的机会可以吃一辈子」。你的直播间里出过后来比你更红的KOL、出过后来开了自己工作室的化妆师、还出过一个六十岁的跨性别女性——她一辈子没有上过网，但在你的直播间里第一次对着镜头说：「我今年六十岁了。我这辈子只跟自己承认过我是谁。今天想跟你们也承认一下。」" },
+      { text: "彻底退网。账号留在了那里——像一个不会熄灭的路灯", effects: { selfAcceptance: 10, health: 12, trauma: -6 }, addTags: ["peace", "mentor"], removeTags: ["streamer"], resultText: "你的最后一条动态只有一行字：「谢谢你们看过我。现在我要去被自己看了。」然后你注销了所有社交账号——不是删掉，是「停用」。你的主页还在，像一个被留下来的时间胶囊。偶尔有人在深夜翻到它，看到你的停更日期和最后那行字，然后在那条动态下留言——有人写「谢谢你让我知道这条路可以走」，有人写「我今天第一次穿了裙子出门」，有人写「你也曾像我一样躲在厕所里化妆吗。我现在也是。但我不怕了」。你不知道这些留言。你正在日本乡下的小屋里种花、看书、傍晚沿着河散步。你没有看到那些留言——但那些留言的人看到了你留下来的一盏灯。一个不再更新的账号、一段停更的视频、和一行永不熄灭的字。灯亮着。下一个该走进来的人，正在推门。" },
+    ],
+    once: true,
+    category: "career",
   },
 
   // ==================== 大学路线 18-25 ====================
@@ -3452,6 +3615,236 @@ export const lifeEvents: LifeEvent[] = [
     once: true,
   },
 
+  // ============================================================
+  // 天赋专属事件（priority 88-89, 每个天赋一个）
+  // ============================================================
+  { id: 'talent_beauty_event', minAge: 8, maxAge: 12, priority: 88, once: true,
+    title: '天生丽质·镜中的自己', description: '你在镜子前站了很久——不是因为虚荣，是因为你终于看到了一个让自己满意的轮廓。',
+    condition: (ctx) => ctx.talents.includes('talent_beauty'),
+    choices: [
+      { text: '开始认真护肤和穿搭', effects: { appearance: 10, selfAcceptance: 6, money: -200 }, resultText: '你买了第一套属于自己的护肤品，开始对着教程学穿搭。每一步都很笨拙，但每一步都很认真。镜子里的你在一点一点接近想象中的样子。' },
+      { text: '保持自然——现在的自己就很好', effects: { selfAcceptance: 10, health: 3 }, resultText: '你关掉了美颜滤镜，认真看了看自己的素颜。不完美，但真实。你在日记本上写：「好看不是变成谁，是喜欢自己现在的样子。」' },
+    ] },
+  { id: 'talent_open_family_event', minAge: 14, maxAge: 17, priority: 88, once: true,
+    title: '开明家庭·一次没有争吵的谈话', description: '母亲敲了敲你的房门，手里没有拿任何"证据"——只有一杯热牛奶。她说她注意到你最近有些不一样。',
+    condition: (ctx) => ctx.talents.includes('talent_open_family'),
+    choices: [
+      { text: '坦诚地告诉她你的感受', effects: { selfAcceptance: 12, socialMask: -3 }, addTags: ['family_support'], resultText: '你没有说全部，但说了很多。母亲沉默了很久，然后说："我不太懂，但你是我的孩子。我不会因为不懂就否定你。"那天晚上你哭了，不是因为难过。' },
+      { text: '说「没什么」——她不需要承担这些', effects: { socialMask: 8, trauma: 3 }, resultText: '你接过牛奶，说"没事的妈"。她看了你一眼——那种看穿了但没有点破的眼神。她拍了拍你的肩膀走了。牛奶是热的，你的心也是。' },
+    ] },
+  { id: 'talent_internet_event', minAge: 15, maxAge: 18, priority: 88, once: true,
+    title: '互联网原住民·第二个家', description: '你注册了一个新的ID——一个和现实中完全不一样的名字。在这里，你可以重新决定自己是谁。',
+    condition: (ctx) => ctx.talents.includes('talent_internet'),
+    choices: [
+      { text: '在圈子里活跃——发日常、交朋友', effects: { followers: 80, selfAcceptance: 8 }, addTags: ['net_active'], resultText: '你开始在那个小圈子里发帖——化妆、日常、吐槽。每一条回复都像一个小灯笼，在黑暗里亮起来。你发现自己不是一个人。' },
+      { text: '安静潜水——只看看就好', effects: { socialMask: 5, selfAcceptance: 4 }, addTags: ['net_lurker'], resultText: '你没有发帖，但你每天睡前都刷一遍——看着那些人讨论的话题，发现原来有这么多人和你有一样的困惑。你从不说话，但你知道他们在。' },
+    ] },
+  { id: 'talent_voice_event', minAge: 16, maxAge: 19, priority: 88, once: true,
+    title: '声线优势·第一个声音', description: '你在网上听到了一段伪声——一个男生的声音变成了清亮的少女音。你试着模仿了一下，发现比想象中容易。',
+    condition: (ctx) => ctx.talents.includes('talent_voice'),
+    choices: [
+      { text: '认真练习伪声——这可能是你的天赋', effects: { appearance: 8, followers: 40, selfAcceptance: 5 }, addTags: ['streamer'], resultText: '你每天晚上在被窝里练发音——从一个音节到一个句子，从勉强到自然。三个月后你在语音频道开口时没人发现你是男生。有人私信问你"小姐姐你的声音好好听"，你对着屏幕笑了五分钟。' },
+      { text: '只在需要的时候用——当做技能储备', effects: { socialMask: 6, selfAcceptance: 3 }, resultText: '你没有刻意练习，但你记住了那些发音技巧。有些东西知道就好——不必成为你的全部。但你知道，需要的时候它会帮你。' },
+    ] },
+  { id: 'talent_art_event', minAge: 16, maxAge: 20, priority: 88, once: true,
+    title: '美术生·画布上的人', description: '美术课上老师让大家画自画像。你盯着空白的画布看了很久——你不知道该画哪个自己。最终你画了一个穿着裙子的人，但脸是模糊的。',
+    condition: (ctx) => ctx.talents.includes('talent_art'),
+    choices: [
+      { text: '把那张画留下来——这是真实的你', effects: { selfAcceptance: 10, appearance: 5 }, resultText: '你把画藏在画夹最底层。每次翻开的时候你都会在那张模糊的脸前停留几秒。有一天你决定把那张脸画清楚——你拿出画笔，画了一张完整的脸。你的脸。' },
+      { text: '撕掉——太危险了', effects: { trauma: 7, socialMask: 8 }, resultText: '你趁没人注意把那张画撕掉了。碎纸片被扔进垃圾桶。但后来每次画自画像的时候——每个学期的美术课都有自画像——你都会想起那张被你毁掉的画。你画的所有脸，都不是你自己的。' },
+    ] },
+  { id: 'talent_music_event', minAge: 14, maxAge: 17, priority: 88, once: true,
+    title: '音乐生·琴键之间', description: '你的钢琴老师说你的演奏"有情绪但缺乏规范"。你没有解释——你弹琴不是为了规范，是为了把心里那些说不出口的东西弹出来。',
+    condition: (ctx) => ctx.talents.includes('talent_music'),
+    choices: [
+      { text: '写一首属于自己的曲子', effects: { selfAcceptance: 12, followers: 30 }, resultText: '你花了三个月写了一首曲子——没有名字，只有音符。你在琴房里弹给唯一的朋友听，弹完之后两个人都没说话。后来她问你这首曲子叫什么，你想了想说：「我叫它《我自己》。」' },
+      { text: '走专业路线——参加比赛', effects: { appearance: 5, socialMask: 5, money: 200 }, resultText: '你选了一首安全的曲目，标准地演奏完了。评委给了你一个不高不低的分数。你不在乎——因为你心里那首真正的曲子还没有被任何人听过。它也不需要被评分。' },
+    ] },
+  { id: 'talent_gamer_event', minAge: 17, maxAge: 18, priority: 88, once: true,
+    title: '游戏宅·虚拟世界的真实', description: '你在游戏里认识了三年的朋友说想开语音。你犹豫了——不是因为声音暴露，是因为游戏里的你是"她"，而现实里你是"他"。',
+    condition: (ctx) => ctx.talents.includes('talent_gamer'),
+    choices: [
+      { text: '开语音——告诉他们真实的你', effects: { selfAcceptance: 8, socialMask: -5 }, addTags: ['has_friends'], resultText: '你深呼吸，按下了语音键。"其实我是男生。"频道里沉默了三秒。然后那个一直叫你"姐妹"的朋友说："那又怎样，你的奶妈玩得比我见过的所有女生都好。"另一个说："性别不影响你carry。"那天你玩游戏玩到凌晨四点——不是因为副本，是因为不想下线。' },
+      { text: '找借口不语音——保持虚拟身份', effects: { socialMask: 10, trauma: 3 }, resultText: '你说"麦克风坏了"。他们信了。继续打字、继续在游戏里做那个"她"。但每次他们叫你"姐妹"的时候，你的手都会在键盘上停一下。然后你继续敲字，好像什么都没发生。' },
+    ] },
+  { id: 'talent_sport_event', minAge: 13, maxAge: 16, priority: 88, once: true,
+    title: '运动神经·身体的语言', description: '体育课自由活动的时候你在镜子前做了一套舞蹈动作——动作是你自己编的，混合了女生和男生的姿态。你发现两种姿态在自己的身体上都很好看。',
+    condition: (ctx) => ctx.talents.includes('talent_sport'),
+    choices: [
+      { text: '去学跳舞——让身体说不敢说的话', effects: { appearance: 8, selfAcceptance: 8, health: 5 }, resultText: '你报了舞蹈班。第一节课你站在最后排，但三个月后老师让你站第一排示范。跳舞的时候你没有在想性别——你只是在动。而动起来的时候，你就是你自己。' },
+      { text: '保持自己的节奏——不报班但私下练习', effects: { selfAcceptance: 6, health: 4 }, resultText: '你没有报班，但你每天睡前在房间里放音乐，对着一面全身镜跳十五分钟。那是你一天中最自由的十五分钟。' },
+    ] },
+  { id: 'talent_careful_event', minAge: 18, maxAge: 22, priority: 88, once: true,
+    title: '细心·未被发现的证据', description: '你发现有人在搜索你过去的账号。你的直觉告诉你——有人在查你。那份谨慎是你十年来最可靠的护甲。',
+    condition: (ctx) => ctx.talents.includes('talent_careful'),
+    choices: [
+      { text: '彻底清理所有痕迹——不留任何证据', effects: { socialMask: 12, trauma: 3 }, addTags: ['deep_closet'], resultText: '一个上午，你把所有照片、所有帖子、所有连接到你真实身份的东西清得干干净净。你甚至删了网盘里的化妆教程。有人说过"网络有记忆"——但你清理得比谁都干净。当天晚上你看着空空的相册，不知道该庆祝还是该难过。' },
+      { text: '转移阵地——换个没人知道的新号', effects: { socialMask: 6, followers: -20 }, resultText: '你没有删，你只是搬了。新建的账号没有任何指向你真实身份的信息。你在上面发的内容和以前一样——化妆、穿搭、日常。只是再也没有人能找到你了。这让你安心，也让你孤独。' },
+    ] },
+  { id: 'talent_saver_event', minAge: 20, maxAge: 30, priority: 88, once: true,
+    title: '存钱罐·第一笔存款', description: '你的银行账户突破了五位数。虽然对很多人来说不算什么——但对你来说，这是你在这个世界上第一个独立的安全气囊。',
+    condition: (ctx) => ctx.talents.includes('talent_saver'),
+    choices: [
+      { text: '用这笔钱投资自己——买设备、学技能', effects: { money: -800, followers: 100, selfAcceptance: 8 }, resultText: '你买了一台相机、一个环形灯、和一套剪辑软件。你开始在小破站上传视频——一开始只有十几个人看。但你在评论区认真地回复每一个人，三个月后你的粉丝涨到了四位数。你发现，把钱花在自己身上永远是最值得的投资。' },
+      { text: '继续存——安全感比什么都重要', effects: { money: 300, selfAcceptance: 3 }, resultText: '你没有动那笔钱。你还是过着和以前一样省吃俭用的日子，但每次打开银行APP看到那个数字，你的肩膀都会松下来一点点。那不是存款——是你告诉自己"我不会饿死"的底气。' },
+    ] },
+  { id: 'talent_empathy_event', minAge: 18, maxAge: 25, priority: 88, once: true,
+    title: '共情过载·承受的重量', description: '你的朋友在深夜给你打了一个电话——她失恋了。你听了两个小时，挂掉电话之后发现自己的眼泪比她的还多。你感觉她的痛苦钻进了你的骨头里。',
+    condition: (ctx) => ctx.talents.includes('talent_empathy'),
+    choices: [
+      { text: '学会设立边界——你不能替所有人痛', effects: { selfAcceptance: 8, trauma: -5 }, resultText: '你开始看关于"共情边界"的书。你学会了一句话：「我可以理解你的痛苦，但我不能替你承担。」你还是一样敏锐、一样温柔，但你不再被别人的情绪吞噬。你发现——真正的共情不是一起溺水，是在岸上伸手。' },
+      { text: '这就是你的天赋——把共情变成力量', effects: { selfAcceptance: 5, trauma: 8, followers: 50 }, resultText: '你开始在深夜写东西——把那些不属于自己的情绪记录下来。那些文字像从别人心里流出来又经过你手指的河流。有人看到后给你留言：「你就是说中了我说不出口的东西。」你觉得值了。虽然每次写完都觉得被抽空，但那种空——是一种干净的、有意义的空。' },
+    ] },
+  { id: 'talent_lucky_event', minAge: 16, maxAge: 20, priority: 88, once: true,
+    title: '幸运儿·关键时刻的电话', description: '你正准备放弃某个重要机会的时候，电话响了——是一个很久不见的前辈，说有个机会刚好适合你。',
+    condition: (ctx) => ctx.talents.includes('talent_lucky'),
+    choices: [
+      { text: '接住这个机会——这是命运的礼物', effects: { money: 600, followers: 80, selfAcceptance: 6 }, resultText: '你抓住了这个机会。一切顺利得出奇——好像有只手在推着你的后背。你忍不住想：也许这个世界偶尔也会站在你这边。' },
+      { text: '表示感谢但婉拒——这次靠自己', effects: { selfAcceptance: 10, socialMask: -3 }, resultText: '你谢过前辈，然后自己投了另一个方向的简历。你没有选择捷径——不是因为骄傲，是因为你想知道自己到底值几斤几两。后来的路走得没那么顺，但每一步都是你自己趟出来的。那种踏实——不是幸运能给的。' },
+    ] },
+  { id: 'talent_double_event', minAge: 17, maxAge: 22, priority: 88, once: true,
+    title: '双重身份·两个世界的边界', description: '你发现自己在两个身份之间切换越来越自然了——白天是格子间的普通社畜，周末是小圈子里小有名气的博主。但这种分裂也需要巨大的能量。',
+    condition: (ctx) => ctx.talents.includes('talent_double'),
+    choices: [
+      { text: '维持双重身份——这是生存策略', effects: { socialMask: 10, selfAcceptance: 3, money: 200 }, resultText: '你越来越擅长切换。白天和同事讨论技术方案，晚上在群里晒今天化的眼影。两个世界的人从不认识彼此——你像在两个房间之间走来走去，门在你身后自动关闭。累，但安全。' },
+      { text: '试着让两个世界靠近一点', effects: { selfAcceptance: 8, socialMask: -5, trauma: 5 }, resultText: '你在公司年会之后，跟一个关系最好的同事说了——不是全部，只是一点点。她愣了一下，然后说："原来你周末的好看照片是真的啊。"你笑了，那感觉像在两个房间之间的墙上推开了一扇窗。' },
+    ] },
+  { id: 'talent_dress_event', minAge: 16, maxAge: 19, priority: 88, once: true,
+    title: '女装天赋·第一次完美的自己', description: '你花了三个小时——化妆、假发、穿搭。当你最后站在镜子前的时候，你看到了一个一直在想象但从没见过的自己。她比你想象中更美。',
+    condition: (ctx) => ctx.talents.includes('talent_dress'),
+    choices: [
+      { text: '拍照留念——这是你最重要的照片', effects: { selfAcceptance: 15, appearance: 8 }, resultText: '你换了六个角度拍了三十二张照片。最后选了一张没有露脸的照片存在了手机加密相册里。你知道这张照片可能会在那里躺很久——但你知道它在那里。它就是你的证据。每次自我怀疑的时候你就打开来看一眼——然后你知道，你是存在的。' },
+      { text: '只在特殊时刻穿——这是仪式感', effects: { selfAcceptance: 10, socialMask: 5 }, resultText: '你把那套衣服叠好，收在行李箱最底层。它不是日常服——它是你的"战袍"。每年生日的那天晚上，你会一个人穿上它，化全套妆，对着镜子里的自己敬一杯酒。生日快乐，另一个你。' },
+    ] },
+  { id: 'talent_photo_event', minAge: 18, maxAge: 24, priority: 88, once: true,
+    title: '摄影眼·镜头的视角', description: '你在整理相册的时候发现——你拍的每一张照片都有一个共同的主题：光线。不是那种大太阳的刺眼光，是被窗帘过滤过的、柔和的那种。你不只是在拍照——你在用镜头学会如何看自己。',
+    condition: (ctx) => ctx.talents.includes('talent_photo'),
+    choices: [
+      { text: '开始拍人像——帮别人也看到自己的美', effects: { followers: 100, money: 300, selfAcceptance: 8 }, resultText: '你在社交平台上发了一条"免费约拍"的帖子。第一批来的人都是和你一样——不太确定自己好不好看、不太敢看镜头。你用镜头告诉他们：你很好看，不信你看。有人看着你拍的照片哭了。"原来我也可以这么好看。"你说："你本来就很好看——只是你以前没有好摄影师。"' },
+      { text: '继续拍自己——这是你和自己的对话', effects: { selfAcceptance: 10, appearance: 5 }, resultText: '你没有接单。你还是每天拍自己——不同的光线、不同的妆、不同的角度。你发现每按下一次快门，你就多接纳自己一点。相册变成了你写给自己的情书——每一张都是一个版本的"我"。' },
+    ] },
+  { id: 'talent_social_event', minAge: 20, maxAge: 26, priority: 88, once: true,
+    title: '社交牛逼症·圈子的中心', description: '你在一个社交活动中认识了一群有趣的人——他们不拘一格、来自不同的背景。而你莫名其妙地成了这个圈子的连接点。',
+    condition: (ctx) => ctx.talents.includes('talent_social'),
+    choices: [
+      { text: '组织线下聚会——把大家拉到一起', effects: { followers: 80, selfAcceptance: 6, socialMask: -3 }, addTags: ['has_friends', 'open_public'], resultText: '你组织了一场聚会——十五个人挤在一个小小的轰趴馆里，有人在弹吉他，有人在玩桌游，有人在角落里聊人生。你端着一杯奶茶四处穿梭——像一只快乐的社交蝴蝶。那天晚上有人在群里说"谢谢你，我觉得我找到组织了。"你回了一个表情包，心里酸酸的。' },
+      { text: '建立线上社群——让更多人连接', effects: { followers: 150, money: 100, selfAcceptance: 5 }, addTags: ['net_active', 'mentor'], resultText: '你建了一个群——从最初的六个人变成了一千个人。群里讨论的话题从化妆技巧到人生哲学到深夜安抚。你看着那些消息条从早刷到晚——发现你做了一件了不起的事：你给了很多人一个可以说真话的地方。' },
+    ] },
+  { id: 'talent_night_event', minAge: 20, maxAge: 28, priority: 88, once: true,
+    title: '夜猫子·凌晨三点的直播', description: '凌晨三点，你开了一场直播——本来以为没人看。但观众数从0跳到了两位数，有人在弹幕里说"深夜档最好看了"。你发现这个时间段的观众——他们不是来看热闹的，他们是真的需要一个陪伴。',
+    condition: (ctx) => ctx.talents.includes('talent_night'),
+    choices: [
+      { text: '成为深夜档主播——陪伴那些失眠的灵魂', effects: { followers: 120, selfAcceptance: 6, health: -3 }, addTags: ['streamer'], resultText: '你开始固定深夜直播。你读弹幕、聊日常、偶尔唱首歌。有一个观众在凌晨四点发了一条私信："谢谢你，今晚本来很难熬。但你让我知道这个世界上还有人醒着。"你没有回复——但你把这条私信截图存了下来。你觉得值了。' },
+      { text: '偶尔开播就好——与其说是直播，不如说是写日记', effects: { followers: 40, selfAcceptance: 8, health: 1 }, resultText: '你没有固定时间，只在真正想说话的时候开播。有时候一周播三次，有时候一个月播一次。观众数不稳定，但来的人都很长情。他们说"你的直播像深夜电台，听着听着就睡着了。"你发现——你不需要一直亮着，也能温暖别人。' },
+    ] },
+  { id: 'talent_early_event', minAge: 18, maxAge: 24, priority: 88, once: true,
+    title: '早熟的灵魂·孤独的清醒', description: '你在同龄人还在迷茫"我要成为谁"的时候已经知道自己是谁了。但这种早熟也有代价——你觉得身边能和你对话的人很少。你像在一个满是孩子的球场里打成人比赛。',
+    condition: (ctx) => ctx.talents.includes('talent_early'),
+    choices: [
+      { text: '寻找比我大的人——我需要能对话的同类', effects: { selfAcceptance: 8, followers: 30 }, addTags: ['mentor', 'has_friends'], resultText: '你在论坛上认识了几个比你大十岁的人。他们聊的话题——自我认同、职业规划、人生的可能性——终于和你对上了频道。你的第一个导师说："你才十几岁，但你已经过完了很多人四十岁才经历的人生。这很累——但你以后会发现，这是你的武器。"' },
+      { text: '保持沉默——不是每个人都懂我的清醒', effects: { socialMask: 8, trauma: 3 }, resultText: '你不说了。你继续观察周围——那些看动漫、聊明星、吵着谁喜欢谁的同龄人。你爱他们，但你不是他们。你在笔记本上写下了一句话，后来把它撕了：「我是我见过的唯一一个这样的人。」' },
+    ] },
+  { id: 'talent_chosen_event', minAge: 18, maxAge: 25, priority: 88, once: true,
+    title: '天选之人·风口上的你', description: '一个意外的机会砸到了你——某个平台的内容负责人看到了你的作品，主动联系你谈合作。这种概率——就像被闪电击中但击中的是好事。',
+    condition: (ctx) => ctx.talents.includes('talent_chosen'),
+    choices: [
+      { text: '签下合作——这是通往自由的门票', effects: { followers: 300, money: 1500, selfAcceptance: 8, appearance: 5 }, resultText: '你签了。一切都像按了快进键——签约、策划、发布、爆款。去年你还在纠结要不要买那支粉底液，今年品牌方给你寄了全套。你坐在一堆未拆的快递中间，给妈妈打了个电话。她说你声音听起来开心了。你说嗯。' },
+      { text: '慎重考虑——不能因为幸运就冲昏头脑', effects: { selfAcceptance: 10, money: 400, socialMask: 5 }, resultText: '你认真看了合同，问了一些看起来很"多疑"的问题。对方的回复很诚恳。最后你签了一个更小的合作——不是最大的机会，但是最安全的一步。你告诉自己：我命好，但不能只靠命好。' },
+    ] },
+  { id: 'talent_butterfly_light', minAge: 20, maxAge: 28, priority: 88, once: true,
+    title: '破茧成蝶·裂缝里的光', description: '你经历了人生中最黑暗的一年——但也是这一年，你开始写东西，开始记录自己的经历。你发现——你写下来的每一个字都在发光。不是因为你写得有多好，是因为它们是真的。',
+    condition: (ctx) => ctx.talents.includes('talent_butterfly') && ctx.stats.trauma >= 20,
+    choices: [
+      { text: '把经历写下来——也许能帮助别人', effects: { selfAcceptance: 12, followers: 80, trauma: -5 }, addTags: ['mentor'], resultText: '你开始在网上分享自己的经历——那些最脆弱、最不想被人看到的时刻。第一篇发出去的时候你在发抖，手指悬在"发布"按钮上犹豫了整整十分钟。三天后那条帖子下有近百条评论——全是"我也是"。你看着那些评论哭了。不是因为被理解——是因为你发现自己原来可以理解别人。' },
+      { text: '只为自己写——不用让别人看到', effects: { selfAcceptance: 10, trauma: -3 }, resultText: '你买了一个厚笔记本，手写。每一页都是一个伤疤被温柔地摸了一遍。写完之后你合上本子，放在抽屉深处。你不确定这些文字会不会被任何人看到——但你确定一件事：把这些东西写下来之后，它们对你的控制变弱了。' },
+    ] },
+  { id: 'talent_lonely_strength', minAge: 18, maxAge: 22, priority: 88, once: true,
+    title: '百年孤独·独行的勇气', description: '有人问你想不想合租。有人想在群里拉你一起做项目。有人想介绍你认识"和你一样的朋友"。你都拒绝了——不是因为不想，是你发现一个人走路的风景比一群人赶路要清晰得多。',
+    condition: (ctx) => ctx.talents.includes('talent_lonely'),
+    choices: [
+      { text: '继续独行——风景只有一个人看才清楚', effects: { selfAcceptance: 15, socialMask: -8 }, resultText: '你选择了一个人。一个人去看了一场午夜电影，一个人去吃了那家评价很好的小馆子，一个人在家过了新年——买了花、买了酒、给自己做了一桌子菜。朋友在朋友圈里晒聚会，你晒了一张阳台上单独一个人的日落照。有人评论"孤独吗"，你说"不"。你发现独行不是缺了什么——是多了很多和自己待在一起的时间。' },
+      { text: '试着打开一点——也许路上会碰到同伴', effects: { selfAcceptance: 5, socialMask: 5 }, addTags: ['has_friends'], resultText: '你松了一点——不是妥协，是一种实验。你接受了那次合租邀请，一起去了一场漫展。那个室友不是你完美的朋友，但她会在你不想见人的时候帮你去拿外卖。你说"谢谢"，她说"这有什么好谢的"。你发现——偶尔让别人靠近你一点，也不是不可以。' },
+    ] },
+  { id: 'talent_prophet_event', minAge: 18, maxAge: 25, priority: 88, once: true,
+    title: '跨性别先知·领先时代的代价', description: '你在一个小地方的图书馆里找到了一本关于性别认同的书——英文原版，不知道是谁放进来的。你读完之后发现自己颤抖了整整十分钟。你不只是"有点儿不一样"——你是一个人在最错误的时代看到了正确的东西。',
+    condition: (ctx) => ctx.talents.includes('talent_prophet'),
+    choices: [
+      { text: '找到更多信息——我不想再一个人', effects: { genderSpectrum: 10, selfAcceptance: 8, trauma: 3 }, resultText: '你翻遍了互联网——在英文网站上注册了账号，用翻译软件读了一个又一个帖子。你发现了一个词——"non-binary"。不是你，但和你在同一个星球上。你把那个词写在日记本的第一页。那是你人生中第一次看到自己可能不是一个人的证据。' },
+      { text: '把这本书放回去——但永远记住它说的', effects: { genderSpectrum: 8, selfAcceptance: 6, socialMask: 5 }, resultText: '你把书放回了书架。你没有告诉任何人。但书里的那句话——"性别不是灵魂的牢笼"——你记住了。你在沉默中消化了这个秘密，像消化一颗在胃里缓慢消融的药。它没有治好你——但它在你的身体里流转，让你知道你对未来的预感不是错觉。' },
+    ] },
+  { id: 'talent_avatar_event', minAge: 20, maxAge: 26, priority: 88, once: true,
+    title: '虚拟化身·数字躯壳', description: '你在一个虚拟社交平台上创建了一个角色——这次，你让它看起来完全是你想要的样子。没有妥协，没有遮掩。在这个世界里——你就是你。',
+    condition: (ctx) => ctx.talents.includes('talent_avatar'),
+    choices: [
+      { text: '全身心投入虚拟身份——这比现实更像自己', effects: { followers: 100, selfAcceptance: 10, socialMask: -5 }, addTags: ['net_active'], resultText: '你在这个平台上花了越来越多的时间。你在上面说话、走动、与人互动——用那个你一直想成为的外壳。有人说"虚拟世界是假的"，但你没有反驳——因为在那个"假"的世界里，你比真的你更像你。' },
+      { text: '用这个角色做内容——让更多人看到我', effects: { followers: 200, money: 300, selfAcceptance: 8 }, resultText: '你开始用这个虚拟角色做内容——配音、闲聊、小剧场。第一批粉丝说你"有魅力"。他们没有问你的真实性别——他们也不需要。在虚拟世界里，你决定规则。你终于发现——你不需要在现实世界证明任何事。' },
+    ] },
+
+  // ============================================================
+  // 天赋联动事件（priority 90-91, 两个天赋组合触发）
+  // ============================================================
+  { id: 'synergy_beauty_dress', minAge: 18, maxAge: 28, priority: 90, once: true,
+    title: '联动·天生丽质×女装天赋', description: '你穿着自己精心搭配的裙子走在街上——不是去什么特殊场合，只是去超市买点东西。一个陌生的女生走过来对你说"你的穿搭好好看"。那一刻你发现——你不是在"扮演"，你只是穿了一件属于你的衣服。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_beauty', 'talent_dress']),
+    choices: [
+      { text: '微笑着说"谢谢"——然后继续逛街', effects: { selfAcceptance: 15, appearance: 5 }, addTags: ['open_public'], resultText: '你说"谢谢"。两个字。但这两个字背后有十几年的重量。你继续推着购物车——裙摆在超市的空调风里轻轻飘动。你在零食区纠结了五分钟选哪个口味的薯片。那是一个普通人的普通下午。那是你小时候不敢想象的人生。' },
+    ] },
+  { id: 'synergy_internet_photo', minAge: 20, maxAge: 30, priority: 90, once: true,
+    title: '联动·互联网×摄影眼', description: '你的线上照片被一个小有名气的自媒体转发了。有人在评论区说"这个博主的审美太绝了"。你看着那些评论——发现被人夸「好看」不如被人夸「有品味」。因为好看是天生的，品味是你十年的积累。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_internet', 'talent_photo']),
+    choices: [
+      { text: '趁热打铁——建立个人品牌', effects: { followers: 300, money: 800, selfAcceptance: 8 }, addTags: ['streamer', 'has_job'], resultText: '你在一周内整理好了自己的作品集，开了内容专栏。第一篇正式发布的文章标题叫《摄影不是变美，是看见美》。发出去之后你的关注量翻了倍。但你没有飘——你还是会用那台用了三年的相机拍照。因为你知道，好的东西，不需要最贵的设备。' },
+    ] },
+  { id: 'synergy_social_night', minAge: 22, maxAge: 32, priority: 90, once: true,
+    title: '联动·社交×夜猫子', description: '你组织的深夜线下聚会——在闭店后的咖啡馆、在天光未亮的滨江路、在某个朋友空荡荡的工作室里——每一次都有人带着"也许不会有人理我"的心情来，然后带着"原来不是我一个人"的表情走。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_social', 'talent_night']),
+    choices: [
+      { text: '做成一个固定活动——「深夜客厅」', effects: { followers: 150, selfAcceptance: 10 }, addTags: ['mentor', 'has_friends'], resultText: '你把聚会变成了一个月一次的固定活动。名字就叫「深夜客厅」——规则很简单：凌晨一点开始，不强制聊天，可以来发呆，可以来哭，可以来只是听别人说话。三年后这个活动在五个城市有人自发组织。你在其中一期的开场白里说："欢迎来到深夜客厅——你可以做自己，或者先不做别人。"' },
+    ] },
+  { id: 'synergy_early_prophet', minAge: 20, maxAge: 30, priority: 90, once: true,
+    title: '联动·早熟×跨性别先知', description: '你在一个关于性别议题的讨论中发言——你比你周围的任何人都更深入地思考过这些问题。有人问你准备了多少年——你说"没有准备。只是比大多数人早了二十年想过这些事。"',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_early', 'talent_prophet']),
+    choices: [
+      { text: '站出来——你的思考值得被更多人听到', effects: { followers: 200, selfAcceptance: 12, trauma: 5 }, addTags: ['mentor', 'open_public'], resultText: '你开始写专栏，分析当前社会的性别议题——有理有据、不卑不亢。有人说你"太尖锐"，但更多人私信说"终于有人说出我一直在想但说不清楚的东西了"。你在结尾签名处写了你的名字——真实的、没有伪装的名字。你的人生第一次公开站在了日光下。' },
+    ] },
+  { id: 'synergy_voice_music', minAge: 18, maxAge: 25, priority: 90, once: true,
+    title: '联动·声线×音乐生', description: '你花了一个周末的下午，用你的伪声录了一首歌——男声和女声都是你。你在结尾处加了一段纯人声，没有伴奏，只有你的两个声音以不同的音域在重叠。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_voice', 'talent_music']),
+    choices: [
+      { text: '发布这首歌——让别人听到你', effects: { followers: 200, selfAcceptance: 10, appearance: 5 }, addTags: ['streamer'], resultText: '你按下了发布。音乐平台上的评论区不知道该怎么反应——有人说"你到底是谁"，有人说"一个人发了两首歌吗"。你回复说"都是我"。你的粉丝数在一周内增加了四位数。但你最在乎的是一个评论："你的声音让我觉得，性别不是二选一。"' },
+    ] },
+  { id: 'synergy_saver_chosen', minAge: 22, maxAge: 35, priority: 90, once: true,
+    title: '联动·存钱罐×天选之人', description: '你之前的储蓄和意外的机会在同一年汇合——你可以选择继续现在的安稳轨迹，或者把手里的钱和机会投向一个全新的方向。你的存款数字是你做事有底气的源头——而这一次，你有六位数。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_saver', 'talent_chosen']),
+    choices: [
+      { text: '创业——开一家属于自己的工作室', effects: { money: -3000, followers: 400, selfAcceptance: 15 }, addTags: ['has_job', 'mentor'], resultText: '你站在刚签完的租赁合同面前——三十平的沿街小店，你打算做一个不拒绝任何人的美妆工作室。开业那天没有人来给你剪彩，但你给第一个客人化妆的时候——你知道这不仅仅是化妆。这是你在为"做自己"创造空间。' },
+    ] },
+  { id: 'synergy_butterfly_prophet', minAge: 25, maxAge: 40, priority: 90, once: true,
+    title: '联动·破茧成蝶×跨性别先知', description: '你站在了一场关于性别多元的分享会的讲台上。台下有三百个座位，坐了大约两百个人。你开口的时候声音在抖——不是紧张，是积压了太多年的话终于找到了出口。那些最痛的经历——现在是你最强的说服力。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_butterfly', 'talent_prophet']),
+    choices: [
+      { text: '说出你的故事——用最真实的声音', effects: { selfAcceptance: 20, followers: 300, trauma: -10 }, addTags: ['mentor', 'open_public'], resultText: '你没有用讲稿。你从六岁时第一次被说"你怎么像个女孩子"讲起，讲到那件被撕碎的裙子、那间废弃的化妆室、和第一个叫你"老师"的人。讲完之后台下沉默了很久。然后有人站起来鼓掌，接着是第二个、第三个。你对全场的第三句话说："我不是什么英雄——我只是一个没有放弃的人。"' },
+    ] },
+  { id: 'synergy_lonely_chosen', minAge: 25, maxAge: 50, priority: 90, once: true,
+    title: '联动·百年孤独×天选之人', description: '你站在自己选择的岔路口——一边是难得的商业合作，一边是你一直想写的那本书。前者可以让你出名和赚钱，后者只有你自己想写。你很清楚选择前者的理由有一万个，选择后者的理由只有一个——因为那是你想写的。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_lonely', 'talent_chosen']),
+    choices: [
+      { text: '写那本书——不管有没有人看', effects: { selfAcceptance: 20, trauma: -5 }, resultText: '你闭门花了半年写完。发出去之后反响不温不火——不是爆款，但买了的人几乎都给了好评。有一个人评论说："这本书像是专门为我写的。我今年和去年的区别，就是读了这本书。"你并不认识这个人——但你知道，你已经完成了最重要的事。你为自己走了一条少有人走的路——但那尽头有你一个人的风景。' },
+    ] },
+  { id: 'synergy_double_early', minAge: 18, maxAge: 24, priority: 90, once: true,
+    title: '联动·双重身份×早熟灵魂', description: '你发现了双重身份最大的消耗——不是两个世界来回切换的精力，而是你知道"真实的自己"在哪里，却不得不每天回到"不真实的世界"。这种撕裂感越清醒越痛苦。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_double', 'talent_early']),
+    choices: [
+      { text: '开始慢慢接近真实——一天少演一点', effects: { selfAcceptance: 12, socialMask: -8, trauma: -5 }, resultText: '你把双重身份从"切换"变成了"融合"——在不是周末也不是特殊场合的某天，你在公司穿了一件中性风的上衣。没人说什么。第二周你又穿了一次。第三周你发现自己不再在心里计算"今天是男模式还是女模式"。你只是穿你想穿的。这很简单——但也很难。' },
+    ] },
+  { id: 'synergy_empathy_art', minAge: 20, maxAge: 28, priority: 90, once: true,
+    title: '联动·共情×美术生', description: '你接到了一个很难的委托——一个孩子画了一幅画，色彩混乱、看不清人形，但你说"我能看懂"。你确实能——每一个歪斜的线条里都藏着一个没说出口的故事。',
+    condition: (ctx) => hasAllTalents(ctx.talents, ['talent_empathy', 'talent_art']),
+    choices: [
+      { text: '用你的画回应——用艺术理解艺术', effects: { selfAcceptance: 12, followers: 80, appearance: 5 }, resultText: '你没有用文字回应那个孩子——你画了一幅画。同样的色彩、同样的混乱——但你的画里多了一道光。孩子看到之后看了很久，然后抬头对你笑了一下。那个笑容让你觉得：你的敏感——那份曾经让你觉得"太重"的共情——可能是你在这个世界上最好的工具。' },
+    ] },
+
+
 ];
 
 export interface Ending {
@@ -3459,7 +3852,7 @@ export interface Ending {
   title: string;
   description: string;
   summary: string; // 人生总结
-  condition: (stats: LifeStats, tags: string[]) => boolean;
+  condition: (stats: LifeStats, tags: string[], talents: string[]) => boolean;
   priority: number;
 }
 
@@ -3478,7 +3871,7 @@ export const endings: Ending[] = [
       '没有人知道你站在天台上的最后一秒在想什么。也许在想六岁那年第一次穿上裙子的下午。' +
       '也许在想母亲的晚饭。也许什么也没想。风停了，城市还在转。你留下的那条未发送的消息，' +
       '在某个数据库里，被标记为「草稿「。',
-    condition: (s, t) => hasTag(t, 'death_ending') && s.trauma >= 28 && s.selfAcceptance < 65,
+    condition: (s, t, _talents) => hasTag(t, 'death_ending') && s.trauma >= 28 && s.selfAcceptance < 65,
     priority: 24,
   },
   {
@@ -3492,7 +3885,7 @@ export const endings: Ending[] = [
       '你的假发代替你留在了巷子里。新闻上只写了一行：「一男子遭袭不治。「他们没有写你的裙子、你的妆容、' +
       '你第一次在漫展上被夸「好可爱「的那个下午。但也许在另一个世界里，你不需要假发，巷子里没有黑暗，' +
       '那个末班车上的人，只是一个人安安静静地坐到了终点站。',
-    condition: (_s, t) => hasTag(t, 'death_ending') && hasTag(t, 'open_public'),
+    condition: (_s, t, _talents) => hasTag(t, 'death_ending') && hasTag(t, 'open_public'),
     priority: 23,
   },
   {
@@ -3506,7 +3899,7 @@ export const endings: Ending[] = [
       '屏幕上那个打了一半的求救帖——「我现在很需要有人告诉我，我还能撑下去「——永远停在了草稿箱里。' +
       '你的照片被你的敌人发给了你的家人。没有人知道你到底在哪。但也许，也许世界上每一个正在被勒索的孩子，' +
       '都替你多呼吸了一口明天的空气。',
-    condition: (_s, t) => hasTag(t, 'death_ending') && !hasTag(t, 'open_public'),
+    condition: (_s, t, _talents) => hasTag(t, 'death_ending') && !hasTag(t, 'open_public'),
     priority: 20,
   },
   {
@@ -3520,7 +3913,7 @@ export const endings: Ending[] = [
       '你最后一篇日记里写着：「请把我的裙子捐给需要它们的人。我不需要了。但也许，这个世界上还有别的孩子，' +
       '需要在镜子里看到自己穿上它的样子。「你的裙子如今穿在某个人身上。那个人不知道这裙子的来历，但阳光照在' +
       '碎花上的时候——那个人笑了。你听到了吗？',
-    condition: (s, _t) => hasTag(_t, 'death_ending') && s.health < 40,
+    condition: (s, _t, _talents) => hasTag(_t, 'death_ending') && s.health < 40,
     priority: 21,
   },
   {
@@ -3534,7 +3927,7 @@ export const endings: Ending[] = [
       '没有人知道你是否还在这个世界上。有人说在海边见过你，穿着碎花裙子，坐在礁石上看日落。天黑之后你走进了' +
       '海里，再也没有回来。但也有人说你在另一个城市重新开始了——换了一个名字、一份工作、一个没有人认识你的' +
       '小区。也许两者都是真的。也许海水接住的，是你终于决定不扮演的那个自己。',
-    condition: (s, _t) => hasTag(_t, 'death_ending') && s.socialMask >= 35,
+    condition: (s, _t, _talents) => hasTag(_t, 'death_ending') && s.socialMask >= 35,
     priority: 22,
   },
   {
@@ -3548,7 +3941,7 @@ export const endings: Ending[] = [
       '你的一生是光。从六岁时偷偷穿上裙子的那个下午，到一百岁时仍在更新的账号——' +
       '你证明了一个人可以既做自己，又被世界看见。那些照片、文字、和深夜的回帖，' +
       '会在你离开后很久，继续为某个孤独的孩子亮着。',
-    condition: (s, t) => hasTag(t, 'mentor') && hasTag(t, 'peace') && (hasTag(t, 'open_public') || hasTag(t, 'streamer')) && s.selfAcceptance >= 115 && s.trauma < 30 && s.followers >= 1200,
+    condition: (s, t, _talents) => hasTag(t, 'mentor') && hasTag(t, 'peace') && (hasTag(t, 'open_public') || hasTag(t, 'streamer')) && s.selfAcceptance >= 115 && s.trauma < 30 && s.followers >= 1200,
     priority: 10,
   },
   {
@@ -3561,7 +3954,7 @@ export const endings: Ending[] = [
     summary:
       '你没有活成传奇，但也没有被碾碎。这一百年里，你在某些地方做自己，在某些地方隐藏，' +
       '学会了在不撕裂自己的前提下与世界相处。普通人的圆满，往往就是这样。',
-    condition: (s, t) => s.selfAcceptance >= 95 && s.socialMask >= 15 && !hasTag(t, 'regret') && hasTag(t, 'has_job'),
+    condition: (s, t, _talents) => s.selfAcceptance >= 95 && s.socialMask >= 15 && !hasTag(t, 'regret') && hasTag(t, 'has_job'),
     priority: 5,
   },
   {
@@ -3574,7 +3967,7 @@ export const endings: Ending[] = [
     summary:
       '你燃烧得太早了。网络记住了你的脸，现实生活却没有你的位置。' +
       '你证明了存在的可能，也透支了所有能量。如果可以重来，你会不会在发光的间隙，也留一点温暖给自己？',
-    condition: (s, t) => s.trauma >= 35 && s.selfAcceptance >= 70 && (hasTag(t, 'open_public') || hasTag(t, 'streamer')),
+    condition: (s, t, _talents) => s.trauma >= 35 && s.selfAcceptance >= 70 && (hasTag(t, 'open_public') || hasTag(t, 'streamer')),
     priority: 9,
   },
   {
@@ -3587,7 +3980,7 @@ export const endings: Ending[] = [
     summary:
       '你用一生换来了体面和安全，却在某个阳台的黄昏里，想起六岁时那条飘起来的裙子。' +
       '那不是遗憾，是你活过却又不敢认的证据。你赢了世界，却把自己关进了牢笼。',
-    condition: (s, t) => s.money >= 10 && s.selfAcceptance < 105 && hasTag(t, 'deep_closet') && !hasTag(t, 'open_public'),
+    condition: (s, t, _talents) => s.money >= 10 && s.selfAcceptance < 105 && hasTag(t, 'deep_closet') && !hasTag(t, 'open_public'),
     priority: 7,
   },
   {
@@ -3600,10 +3993,34 @@ export const endings: Ending[] = [
     summary:
       '你从未妥协，也从未被接纳。一百年里，你没有钱、没有稳定的关系，但也没有戴过一天面具。' +
       '这是自由，还是孤独？你没有答案——但你知道，重来一次，你还是会这样走。',
-    condition: (s, t) => s.selfAcceptance >= 25 && s.money < 800 && hasTag(t, 'open_public') && !hasTag(t, 'streamer') && !hasTag(t, 'mentor'),
+    condition: (s, t, _talents) => s.selfAcceptance >= 25 && s.money < 800 && hasTag(t, 'open_public') && !hasTag(t, 'streamer') && !hasTag(t, 'mentor'),
     priority: 8,
   },
   {
+    id: 'ending_butterfly',
+    title: '蝴蝶之翼',
+    description:
+      '你从最深的黑暗里，长出了最漂亮的翅膀。\n\n' +
+      '所有的伤痛都没有白费——它们变成了你理解世界的深度。\n\n' +
+      '你不仅活了下来，你帮更多人也活了下来。',
+    summary:
+      '你这一生证明了一件事：痛苦可以不是终点，而是起点。那些深夜里流的泪、那些不被理解的时刻、那些被撕碎的裙子——它们最终变成了你的文字、你的故事、你的灯塔。你活下来不是为了自己——是为了告诉下一个正在裂缝中的人：你看，我在这里，你也可以。',
+    condition: (s, t, talents) => hasTag(t, 'peace') && hasTag(t, 'mentor') && s.selfAcceptance >= 110 && s.followers >= 500 && talents.includes('talent_butterfly'),
+    priority: 12,
+  },
+  {
+    id: 'ending_lone_star',
+    title: '孤星',
+    description:
+      '你走了一条没有同行者的路。\n\n' +
+      '没有人理解你为什么这样选择，包括你最亲近的人。\n\n' +
+      '但你不在乎——你在路的尽头看到了只属于你的风景。孤独不是代价，是你选择的自由。',
+    summary:
+      '你用一百年证明了，一个人也能走完一条完整的路。没有伴侣、没有粉丝、没有理解者——但有你自己，和你从未背叛的内心。有些星星注定要独自发光。不是因为没有人愿意靠近它们——是因为它们的光太独特，独特到只有自己能承受这份明亮。',
+    condition: (s, t, talents) => s.selfAcceptance >= 50 && talents.includes('talent_lonely') && hasTag(t, 'peace'),
+    priority: 11,
+  },
+    {
     id: 'ending_trapped',
     title: '困兽',
     description:
@@ -3613,7 +4030,7 @@ export const endings: Ending[] = [
     summary:
       '你想要被看见，又害怕被看见；想要爱，又觉得自己不配。这种撕裂消耗了你整整一百年。' +
       '最后一刻你终于累了——不是因为放弃了，是因为你终于承认，自己值得被温柔对待。',
-    condition: (s) => s.trauma >= 18 && s.selfAcceptance < 85,
+    condition: (s, _t, _talents) => s.trauma >= 18 && s.selfAcceptance < 85,
     priority: 6,
   },
   {
@@ -3626,7 +4043,7 @@ export const endings: Ending[] = [
     summary:
       '你在一群相似的人中间找到了温暖。你们互相保护、也互相取暖，从未完全理解彼此，却从未离开。' +
       '这一生没有传奇，但有人记得你爱吃什么、怕什么、在深夜发什么表情。',
-    condition: (s, t) => hasTag(t, 'has_friends') && s.selfAcceptance >= 25 && !hasTag(t, 'open_public') && !hasTag(t, 'streamer'),
+    condition: (s, t, _talents) => hasTag(t, 'has_friends') && s.selfAcceptance >= 25 && !hasTag(t, 'open_public') && !hasTag(t, 'streamer'),
     priority: 4,
   },
   {
@@ -3640,7 +4057,7 @@ export const endings: Ending[] = [
     summary:
       '你活了一百年，有过快乐、痛苦、秘密，也有过短暂的勇气。但最后你还是没有发出那条消息。' +
       '有些遗憾不会随着时间消失，它们只是变成了你的一部分。',
-    condition: (s, t) => hasTag(t, 'regret') && s.selfAcceptance < 95,
+    condition: (s, t, _talents) => hasTag(t, 'regret') && s.selfAcceptance < 95,
     priority: 3,
   },
   {
@@ -3658,8 +4075,8 @@ export const endings: Ending[] = [
   },
 ];
 
-export function determineEnding(stats: LifeStats, tags: string[]): Ending {
+export function determineEnding(stats: LifeStats, tags: string[], talents: string[]): Ending {
   return endings
-    .filter((e) => e.condition(stats, tags))
+    .filter((e) => e.condition(stats, tags, talents))
     .sort((a, b) => b.priority - a.priority)[0];
 }
