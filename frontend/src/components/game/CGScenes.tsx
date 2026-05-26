@@ -714,7 +714,7 @@ const cgMap: Record<string, React.ComponentType> = {
 export default function CGScene({ endingId }: { endingId: string }) {
   const SVGComponent = cgMap[endingId];
   const [imgFailed, setImgFailed] = useState(false);
-  const imgSrc = `/cg/${endingId}.png`;
+  const imgSrc = `${import.meta.env.BASE_URL}cg/${endingId}.webp`;
 
   if (!SVGComponent) return null;
 

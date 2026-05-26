@@ -20,7 +20,7 @@ const navItems: NavItem[] = [
   },
   {
     app: 'stats',
-    label: '属性',
+    label: '颜值',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 20V10M12 20V4M6 20v-6" />

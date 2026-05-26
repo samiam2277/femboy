@@ -150,14 +150,14 @@ function StatAllocateScreen({ onConfirm }: { onConfirm: (stats: Partial<LifeStat
   });
 
   const labels: Record<keyof LifeStats, string> = {
-    appearance: '外在呈现',
-    selfAcceptance: '内心自洽',
-    socialMask: '社会面具',
+    appearance: '颜值',
+    selfAcceptance: '精神',
+    socialMask: '伪装',
     money: '经济储备',
     health: '健康',
     followers: '粉丝基础',
     trauma: '创伤韧性',
-    genderSpectrum: '性别光谱',
+    genderSpectrum: '女心',
   };
 
   const used = Object.values(allocated).reduce((sum, v) => sum + (v || 0), 0);
@@ -299,14 +299,14 @@ function YearCard({
 // 属性变化格式化
 // ============================================================
 const statLabels: Record<string, string> = {
-  appearance: '外在',
-  selfAcceptance: '自洽',
-  socialMask: '面具',
+  appearance: '颜值',
+  selfAcceptance: '精神',
+  socialMask: '伪装',
   money: '金钱',
   health: '健康',
   followers: '粉丝',
   trauma: '创伤',
-  genderSpectrum: '光谱',
+  genderSpectrum: '女心',
 };
 
 function formatEffects(effects: Partial<LifeStats>): string {
@@ -474,9 +474,9 @@ function EndingScreen({ onRestart }: { onRestart: () => void }) {
 
         <div className="bg-white/5 rounded-xl p-4 space-y-2 text-left">
           <p className="text-xs text-gray-500 mb-2">最终属性</p>
-          <MiniStat label="外在呈现" value={state.stats.appearance} color="#f472b6" />
-          <MiniStat label="内心自洽" value={state.stats.selfAcceptance} color="#60a5fa" />
-          <MiniStat label="社会面具" value={state.stats.socialMask} color="#94a3b8" />
+          <MiniStat label="颜值" value={state.stats.appearance} color="#f472b6" />
+          <MiniStat label="精神" value={state.stats.selfAcceptance} color="#60a5fa" />
+          <MiniStat label="伪装" value={state.stats.socialMask} color="#94a3b8" />
           <MiniStat label="经济储备" value={Math.min(100, state.stats.money / 100)} color="#fbbf24" />
           <MiniStat label="网络影响" value={Math.min(100, state.stats.followers / 100)} color="#f87171" />
           <MiniStat label="健康" value={state.stats.health} color="#34d399" />
@@ -805,14 +805,14 @@ export default function LifeSimulator() {
           </div>
         </div>
         <div className="grid grid-cols-4 gap-1">
-          <MiniStat label="外在" value={state.stats.appearance} color="#f472b6" />
-          <MiniStat label="自洽" value={state.stats.selfAcceptance} color="#60a5fa" />
-          <MiniStat label="面具" value={state.stats.socialMask} color="#94a3b8" />
+          <MiniStat label="颜值" value={state.stats.appearance} color="#f472b6" />
+          <MiniStat label="精神" value={state.stats.selfAcceptance} color="#60a5fa" />
+          <MiniStat label="伪装" value={state.stats.socialMask} color="#94a3b8" />
           <MiniStat label="健康" value={state.stats.health} color="#34d399" />
           <MiniStat label="金钱" value={Math.round(state.stats.money)} color="#fbbf24" />
           <MiniStat label="粉丝" value={Math.round(state.stats.followers)} color="#f87171" />
           <MiniStat label="创伤" value={state.stats.trauma} color="#c084fc" />
-          <MiniStat label="光谱" value={state.stats.genderSpectrum} color="#22d3ee" />
+          <MiniStat label="女心" value={state.stats.genderSpectrum} color="#22d3ee" />
         </div>
         <TagDisplay tags={state.tags} />
       </div>

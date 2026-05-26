@@ -31,10 +31,10 @@ function StatBar({ label, value, color, icon, max = 100 }: StatBarProps) {
 }
 
 const visibleStatConfig: { key: keyof VisibleStats; label: string; color: string; icon: string }[] = [
-  { key: 'appearance', label: '外在呈现', color: '#f472b6', icon: '✨' },
+  { key: 'appearance', label: '颜值', color: '#f472b6', icon: '✨' },
   { key: 'makeupSkill', label: '妆造技术', color: '#c084fc', icon: '💄' },
-  { key: 'selfAcceptance', label: '内心自洽', color: '#60a5fa', icon: '💙' },
-  { key: 'socialMask', label: '社会面具', color: '#94a3b8', icon: '🎭' },
+  { key: 'selfAcceptance', label: '精神', color: '#60a5fa', icon: '💙' },
+  { key: 'socialMask', label: '伪装', color: '#94a3b8', icon: '🎭' },
   { key: 'money', label: '经济储备', color: '#fbbf24', icon: '💰' },
   { key: 'followers', label: '网络人气', color: '#f87171', icon: '🔥' },
   { key: 'health', label: '健康/体能', color: '#34d399', icon: '💪' },
@@ -75,7 +75,7 @@ export default function StatsScreen() {
           <h3 className="text-xs text-gray-500 mb-2">隐藏属性</h3>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-400">性别认同光谱</span>
+              <span className="text-gray-400">女心</span>
               <span className="text-gray-600 italic">???</span>
             </div>
             <div className="flex items-center justify-between text-xs">
@@ -102,7 +102,7 @@ export default function StatsScreen() {
             onClick={() => dispatch({ type: 'UPDATE_VISIBLE_STATS', stats: { appearance: state.visibleStats.appearance + 5 } })}
             className="flex-1 py-2 bg-accent-bg border border-accent-border rounded-xl text-xs text-accent hover:bg-accent/20 transition"
           >
-            +5 外在呈现
+            +5 颜值
           </button>
           <button
             onClick={() => dispatch({ type: 'UPDATE_VISIBLE_STATS', stats: { money: state.visibleStats.money + 100 } })}
