@@ -398,84 +398,127 @@ function PreviewModal({ onClose }: { onClose: () => void }) {
 // ============================================================
 // 属性评级
 // ============================================================
-function getStatRating(stat: string, rawValue: number): string {
+type RatingTier = 'S' | 'A' | 'B' | 'C' | 'D';
+
+function getStatRating(stat: string, rawValue: number): { title: string; tier: RatingTier } {
   const v = rawValue;
+  let title = '';
+  // All stats use same 0-100 range for tier determination
+  // except money/followers which use raw values mapped differently
+  let tierValue = v;
   switch (stat) {
-    case 'appearance':
-      if (v >= 86) return '倾国倾城';
-      if (v >= 71) return '闭月羞花';
-      if (v >= 51) return '玉树临风';
-      if (v >= 31) return '眉清目秀';
-      if (v >= 11) return '平平无奇';
-      return '其貌不扬';
-    case 'selfAcceptance':
-      if (v >= 86) return '心如明镜';
-      if (v >= 71) return '坚定不移';
-      if (v >= 51) return '日渐明朗';
-      if (v >= 31) return '初识自我';
-      if (v >= 11) return '迷茫彷徨';
-      return '自我否定';
-    case 'socialMask':
-      if (v >= 86) return '深柜无言';
-      if (v >= 71) return '表里不一';
-      if (v >= 51) return '道貌岸然';
-      if (v >= 31) return '半遮半掩';
-      if (v >= 11) return '偶有遮掩';
-      return '表里如一';
     case 'money':
-      if (v > 10000) return '富可敌国';
-      if (v >= 5001) return '富甲一方';
-      if (v >= 2001) return '金玉满堂';
-      if (v >= 501) return '小有积蓄';
-      if (v >= 101) return '略有积蓄';
-      if (v >= 0) return '一贫如洗';
-      return '负债累累';
+      if (v > 10000) { title = '富可敌国'; tierValue = 95; }
+      else if (v >= 5001) { title = '富甲一方'; tierValue = 80; }
+      else if (v >= 2001) { title = '金玉满堂'; tierValue = 65; }
+      else if (v >= 501) { title = '小有积蓄'; tierValue = 50; }
+      else if (v >= 101) { title = '略有积蓄'; tierValue = 35; }
+      else if (v >= 0) { title = '一贫如洗'; tierValue = 20; }
+      else { title = '负债累累'; tierValue = 5; }
+      break;
     case 'followers':
-      if (v > 20000) return '一呼百应';
-      if (v >= 5001) return '万众瞩目';
-      if (v >= 1001) return '广为人知';
-      if (v >= 101) return '渐露头角';
-      if (v >= 10) return '小有名气';
-      return '默默无闻';
+      if (v > 20000) { title = '一呼百应'; tierValue = 95; }
+      else if (v >= 5001) { title = '万众瞩目'; tierValue = 80; }
+      else if (v >= 1001) { title = '广为人知'; tierValue = 65; }
+      else if (v >= 101) { title = '渐露头角'; tierValue = 50; }
+      else if (v >= 10) { title = '小有名气'; tierValue = 35; }
+      else { title = '默默无闻'; tierValue = 20; }
+      break;
+    case 'appearance':
+      if (v >= 86) title = '倾国倾城';
+      else if (v >= 71) title = '闭月羞花';
+      else if (v >= 51) title = '玉树临风';
+      else if (v >= 31) title = '眉清目秀';
+      else if (v >= 11) title = '平平无奇';
+      else title = '其貌不扬';
+      break;
+    case 'selfAcceptance':
+      if (v >= 86) title = '心如明镜';
+      else if (v >= 71) title = '坚定不移';
+      else if (v >= 51) title = '日渐明朗';
+      else if (v >= 31) title = '初识自我';
+      else if (v >= 11) title = '迷茫彷徨';
+      else title = '自我否定';
+      break;
+    case 'socialMask':
+      if (v >= 86) title = '深柜无言';
+      else if (v >= 71) title = '表里不一';
+      else if (v >= 51) title = '道貌岸然';
+      else if (v >= 31) title = '半遮半掩';
+      else if (v >= 11) title = '偶有遮掩';
+      else title = '表里如一';
+      break;
     case 'health':
-      if (v >= 86) return '长生久视';
-      if (v >= 71) return '福寿双全';
-      if (v >= 51) return '身强体壮';
-      if (v >= 31) return '中规中矩';
-      if (v >= 11) return '体弱多病';
-      return '病入膏肓';
+      if (v >= 86) title = '长生久视';
+      else if (v >= 71) title = '福寿双全';
+      else if (v >= 51) title = '身强体壮';
+      else if (v >= 31) title = '中规中矩';
+      else if (v >= 11) title = '体弱多病';
+      else title = '病入膏肓';
+      break;
     case 'trauma':
-      if (v >= 86) return '心如死灰';
-      if (v >= 71) return '命若悬丝';
-      if (v >= 51) return '创巨痛深';
-      if (v >= 31) return '多愁善感';
-      if (v >= 11) return '偶有伤痕';
-      return '心如止水';
+      if (v >= 86) title = '心如死灰';
+      else if (v >= 71) title = '命若悬丝';
+      else if (v >= 51) title = '创巨痛深';
+      else if (v >= 31) title = '多愁善感';
+      else if (v >= 11) title = '偶有伤痕';
+      else title = '心如止水';
+      break;
     case 'genderSpectrum':
-      if (v >= 86) return '国色天香';
-      if (v >= 71) return '嫣然百媚';
-      if (v >= 51) return '柔美多姿';
-      if (v >= 31) return '温文尔雅';
-      if (v >= 11) return '中性内敛';
-      return '阳刚之气';
+      if (v >= 86) title = '国色天香';
+      else if (v >= 71) title = '嫣然百媚';
+      else if (v >= 51) title = '柔美多姿';
+      else if (v >= 31) title = '温文尔雅';
+      else if (v >= 11) title = '中性内敛';
+      else title = '阳刚之气';
+      break;
     default:
-      return '';
+      title = '';
+  }
+  let tier: RatingTier = 'D';
+  if (tierValue >= 86) tier = 'S';
+  else if (tierValue >= 71) tier = 'A';
+  else if (tierValue >= 51) tier = 'B';
+  else if (tierValue >= 31) tier = 'C';
+  return { title, tier };
+}
+
+function getTierColor(tier: RatingTier): string {
+  switch (tier) {
+    case 'S': return 'text-amber-300';
+    case 'A': return 'text-pink-300';
+    case 'B': return 'text-gray-200';
+    case 'C': return 'text-gray-400';
+    case 'D': return 'text-gray-500';
+  }
+}
+
+function getTierBg(tier: RatingTier): string {
+  switch (tier) {
+    case 'S': return 'bg-amber-400/15 border-amber-400/30';
+    case 'A': return 'bg-pink-400/10 border-pink-400/20';
+    case 'B': return 'bg-white/5 border-white/10';
+    case 'C': return 'bg-white/[0.03] border-white/5';
+    case 'D': return 'bg-white/[0.02] border-white/[0.03]';
   }
 }
 
 // ============================================================
 // 属性条
 // ============================================================
-function MiniStat({ label, value, rating, color }: { label: string; value: number; rating?: string; color: string }) {
-  const pct = Math.max(0, Math.min(100, value));
+function MiniStat({ label, rating, color, barValue }: { label: string; rating?: { title: string; tier: RatingTier }; color: string; barValue: number }) {
+  const pct = Math.max(0, Math.min(100, barValue));
+  const bg = rating ? getTierBg(rating.tier) : 'bg-white/5 border-white/5';
   return (
-    <div className="bg-white/5 rounded-lg px-2 py-1.5 border border-white/5">
-      <div className="flex items-center justify-between mb-0.5">
-        <span className="text-[11px] text-gray-400 leading-none">{label}</span>
-        <span className="text-[11px] font-medium text-white leading-none">{rating}</span>
+    <div className={`rounded-lg px-2.5 py-2 border ${bg}`}>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[11px] text-gray-500 leading-none">{label}</span>
+        {rating && (
+          <span className={`text-xs font-semibold leading-none ${getTierColor(rating.tier)}`}>{rating.title}</span>
+        )}
       </div>
-      <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
-        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+      <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
     </div>
   );
@@ -539,38 +582,44 @@ function EndingScreen({ onRestart }: { onRestart: () => void }) {
   const ending = useMemo(() => determineEnding(state.stats, state.tags, state.talents), [state.stats, state.tags]);
 
   return (
-    <div className="h-full overflow-y-auto flex flex-col items-center bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white px-4 py-8">
-      <div className="text-center space-y-4 max-w-sm w-full my-auto">
+    <div className="h-full overflow-y-auto flex flex-col items-center bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white px-4 py-6">
+      <div className="text-center space-y-5 max-w-sm w-full my-auto">
         {/* CG 画面 */}
         <CGScene endingId={ending.id} />
 
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-          {ending.title}
-        </h2>
-        <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
-          {ending.description}
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+            {ending.title}
+          </h2>
+          <p className="text-xs text-gray-500">享年 {state.age} 岁</p>
         </div>
+
+        <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
+          {ending.description}
+        </p>
+
         {ending.summary && (
-          <div className="text-sm text-gray-400 leading-relaxed italic border-l-2 border-purple-500/30 pl-3 text-left">
+          <p className="text-xs text-gray-500 leading-relaxed italic border-l-2 border-purple-500/30 pl-3 text-left">
             {ending.summary}
-          </div>
+          </p>
         )}
 
-        <div className="bg-white/5 rounded-xl p-4 space-y-2 text-left">
-          <p className="text-xs text-gray-500 mb-2">最终属性</p>
-          <MiniStat label="颜值" value={state.stats.appearance} rating={getStatRating('appearance', state.stats.appearance)} color="#f472b6" />
-          <MiniStat label="精神" value={state.stats.selfAcceptance} rating={getStatRating('selfAcceptance', state.stats.selfAcceptance)} color="#60a5fa" />
-          <MiniStat label="伪装" value={state.stats.socialMask} rating={getStatRating('socialMask', state.stats.socialMask)} color="#94a3b8" />
-          <MiniStat label="经济" value={Math.min(100, state.stats.money / 100)} rating={getStatRating('money', state.stats.money)} color="#fbbf24" />
-          <MiniStat label="影响" value={Math.min(100, state.stats.followers / 100)} rating={getStatRating('followers', state.stats.followers)} color="#f87171" />
-          <MiniStat label="健康" value={state.stats.health} rating={getStatRating('health', state.stats.health)} color="#34d399" />
-          <MiniStat label="创伤" value={state.stats.trauma} rating={getStatRating('trauma', state.stats.trauma)} color="#e879f9" />
-          <MiniStat label="女心" value={state.stats.genderSpectrum} rating={getStatRating('genderSpectrum', state.stats.genderSpectrum)} color="#fb923c" />
+        {/* 属性结算 */}
+        <div className="space-y-1.5 text-left">
+          <p className="text-[10px] text-gray-600 text-center">— 人生结算 —</p>
+          <MiniStat label="颜值" barValue={state.stats.appearance} rating={getStatRating('appearance', state.stats.appearance)} color="#f472b6" />
+          <MiniStat label="精神" barValue={state.stats.selfAcceptance} rating={getStatRating('selfAcceptance', state.stats.selfAcceptance)} color="#60a5fa" />
+          <MiniStat label="伪装" barValue={state.stats.socialMask} rating={getStatRating('socialMask', state.stats.socialMask)} color="#94a3b8" />
+          <MiniStat label="经济" barValue={Math.min(100, state.stats.money / 100)} rating={getStatRating('money', state.stats.money)} color="#fbbf24" />
+          <MiniStat label="影响" barValue={Math.min(100, state.stats.followers / 100)} rating={getStatRating('followers', state.stats.followers)} color="#f87171" />
+          <MiniStat label="健康" barValue={state.stats.health} rating={getStatRating('health', state.stats.health)} color="#34d399" />
+          <MiniStat label="创伤" barValue={state.stats.trauma} rating={getStatRating('trauma', state.stats.trauma)} color="#e879f9" />
+          <MiniStat label="女心" barValue={state.stats.genderSpectrum} rating={getStatRating('genderSpectrum', state.stats.genderSpectrum)} color="#fb923c" />
         </div>
 
         <button
           onClick={onRestart}
-          className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-sm transition-all active:scale-95"
+          className="px-10 py-3 bg-gradient-to-r from-pink-500/80 to-purple-500/80 hover:from-pink-500 hover:to-purple-500 rounded-2xl text-sm font-medium transition-all active:scale-95 shadow-lg shadow-purple-500/20"
         >
           我要重开
         </button>
@@ -893,14 +942,14 @@ export default function LifeSimulator() {
           </div>
         </div>
         <div className="grid grid-cols-4 gap-1">
-          <MiniStat label="颜值" value={state.stats.appearance} color="#f472b6" />
-          <MiniStat label="精神" value={state.stats.selfAcceptance} color="#60a5fa" />
-          <MiniStat label="伪装" value={state.stats.socialMask} color="#94a3b8" />
-          <MiniStat label="健康" value={state.stats.health} color="#34d399" />
-          <MiniStat label="金钱" value={Math.round(state.stats.money)} color="#fbbf24" />
-          <MiniStat label="粉丝" value={Math.round(state.stats.followers)} color="#f87171" />
-          <MiniStat label="创伤" value={state.stats.trauma} color="#c084fc" />
-          <MiniStat label="女心" value={state.stats.genderSpectrum} color="#22d3ee" />
+          <MiniStat label="颜值" barValue={state.stats.appearance} color="#f472b6" />
+          <MiniStat label="精神" barValue={state.stats.selfAcceptance} color="#60a5fa" />
+          <MiniStat label="伪装" barValue={state.stats.socialMask} color="#94a3b8" />
+          <MiniStat label="健康" barValue={state.stats.health} color="#34d399" />
+          <MiniStat label="金钱" barValue={Math.min(100, Math.round(state.stats.money / 100))} color="#fbbf24" />
+          <MiniStat label="粉丝" barValue={Math.min(100, Math.round(state.stats.followers / 100))} color="#f87171" />
+          <MiniStat label="创伤" barValue={state.stats.trauma} color="#c084fc" />
+          <MiniStat label="女心" barValue={state.stats.genderSpectrum} color="#22d3ee" />
         </div>
         <TagDisplay tags={state.tags} />
       </div>

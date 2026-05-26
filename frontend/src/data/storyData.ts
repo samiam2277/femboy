@@ -4005,7 +4005,7 @@ export const endings: Ending[] = [
       '你不仅活了下来，你帮更多人也活了下来。',
     summary:
       '你这一生证明了一件事：痛苦可以不是终点，而是起点。那些深夜里流的泪、那些不被理解的时刻、那些被撕碎的裙子——它们最终变成了你的文字、你的故事、你的灯塔。你活下来不是为了自己——是为了告诉下一个正在裂缝中的人：你看，我在这里，你也可以。',
-    condition: (s, t, talents) => hasTag(t, 'peace') && hasTag(t, 'mentor') && s.selfAcceptance >= 110 && s.followers >= 500 && talents.includes('talent_butterfly'),
+    condition: (s, t, talents) => hasTag(t, 'peace') && hasTag(t, 'has_job') && s.selfAcceptance >= 85 && s.followers >= 150 && talents.includes('talent_butterfly'),
     priority: 12,
   },
   {
